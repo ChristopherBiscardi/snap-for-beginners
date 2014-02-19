@@ -15,470 +15,479 @@
 
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://gumroad.com/l/qWMnO">I Want This (Order)</a>
+      <header class="inner">
+        <a id="forkme_banner" href="https://gumroad.com/l/qWMnO">I Want This (Order)</a>
 
-          <h1 id="project_title">Snap for Beginners</h1>
-          <h2 id="project_tagline">Sample Chapter: Digestive Functors (Form Processing)</h2>
+        <h1 id="project_title">Snap for Beginners</h1>
+        <h2 id="project_tagline">Sample Chapter: Digestive Functors (Form Processing)</h2>
 
-        </header>
+      </header>
     </div>
 
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
+        <h4>TOC:</h4>
+	<ul>
+	  <li><a href="#building-a-digestive-functors-flow">Building a Digestive Functors Flow</a></li>
+	  <li><a href="#define-a-new-datatype-tweet">Define a new Datatype: Tweet</a></li>
+	  <li><a href="#creating-the-form">Creating the Form</a></li>
+	  <li><a href="#building-the-heist-templates">Building The Heist Templates</a></li>
+	  <li><a href="#the-formhandler-routing-function">The FormHandler Routing Function</a></li>
+	  <li><a href="#final-steps">Final Steps</a></li>
+	</ul>
         <h1>
-<a name="digestive-functors" class="anchor" href="#digestive-functors"><span class="octicon octicon-link"></span></a>Digestive Functors</h1>
-
-<p>Digestive functors are one way to do form processing in Haskell. In this chapter we will build up a sample application to see how to accept and validate form input and render forms and errors with the digestive functors package.</p>
-
-<p>Then, we'll move into a deeper exploration and examine all of the possible options digestive functors gives us.</p>
-
-<h2>
-<a name="building-a-digestive-functors-flow" class="anchor" href="#building-a-digestive-functors-flow"><span class="octicon octicon-link"></span></a>Building a Digestive Functors Flow</h2>
-
-<p>To start off, we need a scaffold. We'll create a new folder named <code>df-one</code> and create a new scaffolding app inside it:</p>
-
-<div class="highlight highlight-bash"><pre>mkdir df-one
-<span class="nb">cd </span>df-one
-snap init
-</pre></div>
-
-<p>Alternatively, check out the code in <code>code/digestive-functors/df-one</code>, which has the completed code.</p>
-
-<p>Our <code>src/Site.hs</code> currently looks as such:</p>
-
-<div class="highlight highlight-haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
-
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="c1">-- | This module is where all the routes and handlers are defined for your</span>
-<span class="c1">-- site. The 'app' function is the initializer that combines everything</span>
-<span class="c1">-- together and is exported by this module.</span>
-<span class="kr">module</span> <span class="nn">Site</span>
-  <span class="p">(</span> <span class="nf">app</span>
-  <span class="p">)</span> <span class="kr">where</span>
-
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="kr">import</span>           <span class="nn">Control.Applicative</span>
-<span class="kr">import</span>           <span class="nn">Data.ByteString</span> <span class="p">(</span><span class="kt">ByteString</span><span class="p">)</span>
-<span class="kr">import</span>           <span class="nn">Data.Maybe</span>
-<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
-<span class="kr">import</span>           <span class="nn">Snap.Core</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth.Backends.JsonFile</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Session.Backends.CookieSession</span>
-<span class="kr">import</span>           <span class="nn">Snap.Util.FileServe</span>
-<span class="kr">import</span>           <span class="nn">Heist</span>
-<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Heist.Interpreted</span> <span class="k">as</span> <span class="n">I</span>
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="kr">import</span>           <span class="nn">Application</span>
-
-
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="c1">-- | Render login form</span>
-<span class="nf">handleLogin</span> <span class="ow">::</span> <span class="kt">Maybe</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
-<span class="nf">handleLogin</span> <span class="n">authError</span> <span class="ow">=</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="kt">I</span><span class="o">.</span><span class="n">bindSplices</span> <span class="n">errs</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"login"</span>
-  <span class="kr">where</span>
-    <span class="n">errs</span> <span class="ow">=</span> <span class="p">[(</span><span class="s">"loginError"</span><span class="p">,</span> <span class="kt">I</span><span class="o">.</span><span class="n">textSplice</span> <span class="n">c</span><span class="p">)</span> <span class="o">|</span> <span class="n">c</span> <span class="ow">&lt;-</span> <span class="n">maybeToList</span> <span class="n">authError</span><span class="p">]</span>
+	  <a name="digestive-functors" class="anchor" href="#digestive-functors"><span class="octicon octicon-link"></span></a>Digestive Functors</h1>
+
+	<p>Digestive functors are one way to do form processing in Haskell. In this chapter we will build up a sample application to see how to accept and validate form input and render forms and errors with the digestive functors package.</p>
+
+	<p>Then, we'll move into a deeper exploration and examine all of the possible options digestive functors gives us.</p>
+
+	<h2>
+	  <a name="building-a-digestive-functors-flow" class="anchor" href="#building-a-digestive-functors-flow"><span class="octicon octicon-link"></span></a>Building a Digestive Functors Flow</h2>
+
+	<p>To start off, we need a scaffold. We'll create a new folder named <code>df-one</code> and create a new scaffolding app inside it:</p>
+
+	<div class="highlight highlight-bash"><pre>mkdir df-one
+	    <span class="nb">cd </span>df-one
+	    snap init
+	</pre></div>
+
+	<p>Alternatively, check out the code in <code>code/digestive-functors/df-one</code>, which has the completed code.</p>
+
+	<p>Our <code>src/Site.hs</code> currently looks as such:</p>
+
+	<div class="highlight highlight-haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
+
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="c1">-- | This module is where all the routes and handlers are defined for your</span>
+	    <span class="c1">-- site. The 'app' function is the initializer that combines everything</span>
+	    <span class="c1">-- together and is exported by this module.</span>
+	    <span class="kr">module</span> <span class="nn">Site</span>
+	    <span class="p">(</span> <span class="nf">app</span>
+	    <span class="p">)</span> <span class="kr">where</span>
+
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="kr">import</span>           <span class="nn">Control.Applicative</span>
+	    <span class="kr">import</span>           <span class="nn">Data.ByteString</span> <span class="p">(</span><span class="kt">ByteString</span><span class="p">)</span>
+	    <span class="kr">import</span>           <span class="nn">Data.Maybe</span>
+	    <span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Core</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth.Backends.JsonFile</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Session.Backends.CookieSession</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Util.FileServe</span>
+	    <span class="kr">import</span>           <span class="nn">Heist</span>
+	    <span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Heist.Interpreted</span> <span class="k">as</span> <span class="n">I</span>
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="kr">import</span>           <span class="nn">Application</span>
+
+
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="c1">-- | Render login form</span>
+	    <span class="nf">handleLogin</span> <span class="ow">::</span> <span class="kt">Maybe</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+	    <span class="nf">handleLogin</span> <span class="n">authError</span> <span class="ow">=</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="kt">I</span><span class="o">.</span><span class="n">bindSplices</span> <span class="n">errs</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"login"</span>
+	    <span class="kr">where</span>
+	    <span class="n">errs</span> <span class="ow">=</span> <span class="p">[(</span><span class="s">"loginError"</span><span class="p">,</span> <span class="kt">I</span><span class="o">.</span><span class="n">textSplice</span> <span class="n">c</span><span class="p">)</span> <span class="o">|</span> <span class="n">c</span> <span class="ow">&lt;-</span> <span class="n">maybeToList</span> <span class="n">authError</span><span class="p">]</span>
 
 
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="c1">-- | Handle login submit</span>
-<span class="nf">handleLoginSubmit</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
-<span class="nf">handleLoginSubmit</span> <span class="ow">=</span>
-    <span class="n">loginUser</span> <span class="s">"login"</span> <span class="s">"password"</span> <span class="kt">Nothing</span>
-              <span class="p">(</span><span class="nf">\</span><span class="kr">_</span> <span class="ow">-&gt;</span> <span class="n">handleLogin</span> <span class="n">err</span><span class="p">)</span> <span class="p">(</span><span class="n">redirect</span> <span class="s">"/"</span><span class="p">)</span>
-  <span class="kr">where</span>
-    <span class="n">err</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="s">"Unknown user or password"</span>
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="c1">-- | Handle login submit</span>
+	    <span class="nf">handleLoginSubmit</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+	    <span class="nf">handleLoginSubmit</span> <span class="ow">=</span>
+	    <span class="n">loginUser</span> <span class="s">"login"</span> <span class="s">"password"</span> <span class="kt">Nothing</span>
+            <span class="p">(</span><span class="nf">\</span><span class="kr">_</span> <span class="ow">-&gt;</span> <span class="n">handleLogin</span> <span class="n">err</span><span class="p">)</span> <span class="p">(</span><span class="n">redirect</span> <span class="s">"/"</span><span class="p">)</span>
+	    <span class="kr">where</span>
+	    <span class="n">err</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="s">"Unknown user or password"</span>
 
-
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="c1">-- | Logs out and redirects the user to the site index.</span>
-<span class="nf">handleLogout</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
-<span class="nf">handleLogout</span> <span class="ow">=</span> <span class="n">logout</span> <span class="o">&gt;&gt;</span> <span class="n">redirect</span> <span class="s">"/"</span>
-
-
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="c1">-- | Handle new user form submit</span>
-<span class="nf">handleNewUser</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
-<span class="nf">handleNewUser</span> <span class="ow">=</span> <span class="n">method</span> <span class="kt">GET</span> <span class="n">handleForm</span> <span class="o">&lt;|&gt;</span> <span class="n">method</span> <span class="kt">POST</span> <span class="n">handleFormSubmit</span>
-  <span class="kr">where</span>
-    <span class="n">handleForm</span> <span class="ow">=</span> <span class="n">render</span> <span class="s">"new_user"</span>
-    <span class="n">handleFormSubmit</span> <span class="ow">=</span> <span class="n">registerUser</span> <span class="s">"login"</span> <span class="s">"password"</span> <span class="o">&gt;&gt;</span> <span class="n">redirect</span> <span class="s">"/"</span>
-
-
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="c1">-- | The application's routes.</span>
-<span class="nf">routes</span> <span class="ow">::</span> <span class="p">[(</span><span class="kt">ByteString</span><span class="p">,</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span><span class="p">)]</span>
-<span class="nf">routes</span> <span class="ow">=</span> <span class="p">[</span> <span class="p">(</span><span class="s">"/login"</span><span class="p">,</span>    <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLoginSubmit</span><span class="p">)</span>
-         <span class="p">,</span> <span class="p">(</span><span class="s">"/logout"</span><span class="p">,</span>   <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLogout</span><span class="p">)</span>
-         <span class="p">,</span> <span class="p">(</span><span class="s">"/new_user"</span><span class="p">,</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">handleNewUser</span><span class="p">)</span>
-         <span class="p">,</span> <span class="p">(</span><span class="s">""</span><span class="p">,</span>          <span class="n">serveDirectory</span> <span class="s">"static"</span><span class="p">)</span>
-         <span class="p">]</span>
-
-
-<span class="c1">------------------------------------------------------------------------------</span>
-<span class="c1">-- | The application initializer.</span>
-<span class="nf">app</span> <span class="ow">::</span> <span class="kt">SnapletInit</span> <span class="kt">App</span> <span class="kt">App</span>
-<span class="nf">app</span> <span class="ow">=</span> <span class="n">makeSnaplet</span> <span class="s">"app"</span> <span class="s">"An snaplet example application."</span> <span class="kt">Nothing</span> <span class="o">$</span> <span class="kr">do</span>
-    <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">""</span> <span class="n">heist</span> <span class="o">$</span> <span class="n">heistInit</span> <span class="s">"templates"</span>
-    <span class="n">s</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"sess"</span> <span class="n">sess</span> <span class="o">$</span>
-           <span class="n">initCookieSessionManager</span> <span class="s">"site_key.txt"</span> <span class="s">"sess"</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3600</span><span class="p">)</span>
-
-    <span class="c1">-- NOTE: We're using initJsonFileAuthManager here because it's easy and</span>
-    <span class="c1">-- doesn't require any kind of database server to run.  In practice,</span>
-    <span class="c1">-- you'll probably want to change this to a more robust auth backend.</span>
-    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"auth"</span> <span class="n">auth</span> <span class="o">$</span>
-           <span class="n">initJsonFileAuthManager</span> <span class="n">defAuthSettings</span> <span class="n">sess</span> <span class="s">"users.json"</span>
-    <span class="n">addRoutes</span> <span class="n">routes</span>
-    <span class="n">addAuthSplices</span> <span class="n">h</span> <span class="n">auth</span>
-    <span class="n">return</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">h</span> <span class="n">s</span> <span class="n">a</span>
-</pre></div>
+
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="c1">-- | Logs out and redirects the user to the site index.</span>
+	    <span class="nf">handleLogout</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+	    <span class="nf">handleLogout</span> <span class="ow">=</span> <span class="n">logout</span> <span class="o">&gt;&gt;</span> <span class="n">redirect</span> <span class="s">"/"</span>
+
+
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="c1">-- | Handle new user form submit</span>
+	    <span class="nf">handleNewUser</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+	    <span class="nf">handleNewUser</span> <span class="ow">=</span> <span class="n">method</span> <span class="kt">GET</span> <span class="n">handleForm</span> <span class="o">&lt;|&gt;</span> <span class="n">method</span> <span class="kt">POST</span> <span class="n">handleFormSubmit</span>
+	    <span class="kr">where</span>
+	    <span class="n">handleForm</span> <span class="ow">=</span> <span class="n">render</span> <span class="s">"new_user"</span>
+	    <span class="n">handleFormSubmit</span> <span class="ow">=</span> <span class="n">registerUser</span> <span class="s">"login"</span> <span class="s">"password"</span> <span class="o">&gt;&gt;</span> <span class="n">redirect</span> <span class="s">"/"</span>
+
+
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="c1">-- | The application's routes.</span>
+	    <span class="nf">routes</span> <span class="ow">::</span> <span class="p">[(</span><span class="kt">ByteString</span><span class="p">,</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span><span class="p">)]</span>
+	    <span class="nf">routes</span> <span class="ow">=</span> <span class="p">[</span> <span class="p">(</span><span class="s">"/login"</span><span class="p">,</span>    <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLoginSubmit</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s">"/logout"</span><span class="p">,</span>   <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLogout</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s">"/new_user"</span><span class="p">,</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">handleNewUser</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s">""</span><span class="p">,</span>          <span class="n">serveDirectory</span> <span class="s">"static"</span><span class="p">)</span>
+            <span class="p">]</span>
+
+
+	    <span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="c1">-- | The application initializer.</span>
+	    <span class="nf">app</span> <span class="ow">::</span> <span class="kt">SnapletInit</span> <span class="kt">App</span> <span class="kt">App</span>
+	    <span class="nf">app</span> <span class="ow">=</span> <span class="n">makeSnaplet</span> <span class="s">"app"</span> <span class="s">"An snaplet example application."</span> <span class="kt">Nothing</span> <span class="o">$</span> <span class="kr">do</span>
+	    <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">""</span> <span class="n">heist</span> <span class="o">$</span> <span class="n">heistInit</span> <span class="s">"templates"</span>
+	    <span class="n">s</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"sess"</span> <span class="n">sess</span> <span class="o">$</span>
+            <span class="n">initCookieSessionManager</span> <span class="s">"site_key.txt"</span> <span class="s">"sess"</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3600</span><span class="p">)</span>
+
+	    <span class="c1">-- NOTE: We're using initJsonFileAuthManager here because it's easy and</span>
+	    <span class="c1">-- doesn't require any kind of database server to run.  In practice,</span>
+	    <span class="c1">-- you'll probably want to change this to a more robust auth backend.</span>
+	    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"auth"</span> <span class="n">auth</span> <span class="o">$</span>
+            <span class="n">initJsonFileAuthManager</span> <span class="n">defAuthSettings</span> <span class="n">sess</span> <span class="s">"users.json"</span>
+	    <span class="n">addRoutes</span> <span class="n">routes</span>
+	    <span class="n">addAuthSplices</span> <span class="n">h</span> <span class="n">auth</span>
+	    <span class="n">return</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">h</span> <span class="n">s</span> <span class="n">a</span>
+	</pre></div>
 
-<p>We are going to keep the handlers around so that later we can use the <code>auth</code> snaplet, which is already set up for us, to secure our form.</p>
+	<p>We are going to keep the handlers around so that later we can use the <code>auth</code> snaplet, which is already set up for us, to secure our form.</p>
 
-<h3>
-<a name="define-a-new-datatype-tweet" class="anchor" href="#define-a-new-datatype-tweet"><span class="octicon octicon-link"></span></a>Define a new Datatype: Tweet</h3>
+	<h3>
+	  <a name="define-a-new-datatype-tweet" class="anchor" href="#define-a-new-datatype-tweet"><span class="octicon octicon-link"></span></a>Define a new Datatype: Tweet</h3>
 
-<p>The very first thing we need is a new datatype to define the data we will be capturing in our form. In our case, Twitter is down and the world is in a panic, so we will create a <code>Tweet</code> in a new file <code>src/Twitter.hs</code> to build a new Twitter.</p>
+	<p>The very first thing we need is a new datatype to define the data we will be capturing in our form. In our case, Twitter is down and the world is in a panic, so we will create a <code>Tweet</code> in a new file <code>src/Twitter.hs</code> to build a new Twitter.</p>
 
-<p>We will also include some module boilerplate so we can export our awesome new datatypes and functions.</p>
+	<p>We will also include some module boilerplate so we can export our awesome new datatypes and functions.</p>
 
-<div class="highlight highlight-haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
-<span class="kr">module</span> <span class="nn">Twitter</span>
-<span class="p">(</span><span class="kt">Tweet</span>
-  <span class="p">)</span> <span class="kr">where</span>
+	<div class="highlight highlight-haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
+	    <span class="kr">module</span> <span class="nn">Twitter</span>
+	    <span class="p">(</span><span class="kt">Tweet</span>
+	    <span class="p">)</span> <span class="kr">where</span>
 
-<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
+	    <span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
 
-<span class="kr">data</span> <span class="kt">Tweet</span> <span class="ow">=</span> <span class="kt">Tweet</span> <span class="p">{</span>
-  <span class="n">username</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span><span class="p">,</span>
-  <span class="n">timestamp</span> <span class="ow">::</span> <span class="kt">Int</span><span class="p">,</span>
-  <span class="n">content</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
-</pre></div>
+	    <span class="kr">data</span> <span class="kt">Tweet</span> <span class="ow">=</span> <span class="kt">Tweet</span> <span class="p">{</span>
+	    <span class="n">username</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span><span class="p">,</span>
+	    <span class="n">timestamp</span> <span class="ow">::</span> <span class="kt">Int</span><span class="p">,</span>
+	    <span class="n">content</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+	</pre></div>
 
-<p>In this example[^4], we have created a new <code>Tweet</code> datatype using <a href="http://learnyouahaskell.com/making-our-own-types-and-typeclasses#record-syntax">record syntax</a>. Our <code>Tweet</code> has a field for <code>username</code> and <code>content</code>, which are both of type <code>T.Text</code>[^1], and a field for a <code>timestamp</code> which we are going to deal with as an Integer (for example, the current epoch time, for me writing this, is 1391490698).</p>
+	<p>In this example[^4], we have created a new <code>Tweet</code> datatype using <a href="http://learnyouahaskell.com/making-our-own-types-and-typeclasses#record-syntax">record syntax</a>. Our <code>Tweet</code> has a field for <code>username</code> and <code>content</code>, which are both of type <code>T.Text</code>[^1], and a field for a <code>timestamp</code> which we are going to deal with as an Integer (for example, the current epoch time, for me writing this, is 1391490698).</p>
 
-<p>The beginning of the file says that our module name is <code>Twitter</code> (so if we were going to import it, we would write <code>import Twitter</code>). We also export the <code>Tweet</code> data type so that after importing it (in some other file), we can use <code>Tweet</code> to create new Tweets.</p>
+	<p>The beginning of the file says that our module name is <code>Twitter</code> (so if we were going to import it, we would write <code>import Twitter</code>). We also export the <code>Tweet</code> data type so that after importing it (in some other file), we can use <code>Tweet</code> to create new Tweets.</p>
 
-<p>Also, since we are using <code>Data.Text</code> we import it <code>as T</code>.</p>
+	<p>Also, since we are using <code>Data.Text</code> we import it <code>as T</code>.</p>
 
-<p>We can check out our fancy new datatype using <code>ghci src/Twitter.hs</code>. This starts up Haskell's interpreter for the compiler we are using (ghc). Once inside the prompt, we can run <code>Tweet "MyAwesomeUsername" 1234567 "42 is the answer!"</code> to see how a <code>Tweet</code> is constructed. It looks somthing like this:</p>
+	<p>We can check out our fancy new datatype using <code>ghci src/Twitter.hs</code>. This starts up Haskell's interpreter for the compiler we are using (ghc). Once inside the prompt, we can run <code>Tweet "MyAwesomeUsername" 1234567 "42 is the answer!"</code> to see how a <code>Tweet</code> is constructed. It looks somthing like this:</p>
 
-<div class="highlight highlight-haskell"><pre><span class="o">*</span><span class="kt">Twitter</span><span class="o">&gt;</span> <span class="kt">Tweet</span> <span class="s">"MyAwesomeUsername"</span> <span class="mi">1234567</span> <span class="s">"42 is the answer!"</span>
-<span class="kt">Tweet</span> <span class="p">{</span><span class="n">username</span> <span class="ow">=</span> <span class="s">"MyAwesomeUsername"</span><span class="p">,</span>
-       <span class="n">timestamp</span> <span class="ow">=</span> <span class="mi">1234567</span><span class="p">,</span>
-       <span class="n">content</span> <span class="ow">=</span> <span class="s">"42 is the answer!"</span><span class="p">}</span>
-</pre></div>
-
-<p><code>:q</code> will get us out of the prompt.</p>
-
-<h3>
-<a name="creating-the-form" class="anchor" href="#creating-the-form"><span class="octicon octicon-link"></span></a>Creating the Form</h3>
-
-<p>Now we can create our forms. Since we are using Digestive Functors with Snap and Heist we will need a couple imports. Digestive Functors can be used in other contexts, including against JSON data.</p>
+	<div class="highlight highlight-haskell"><pre><span class="o">*</span><span class="kt">Twitter</span><span class="o">&gt;</span> <span class="kt">Tweet</span> <span class="s">"MyAwesomeUsername"</span> <span class="mi">1234567</span> <span class="s">"42 is the answer!"</span>
+	    <span class="kt">Tweet</span> <span class="p">{</span><span class="n">username</span> <span class="ow">=</span> <span class="s">"MyAwesomeUsername"</span><span class="p">,</span>
+	    <span class="n">timestamp</span> <span class="ow">=</span> <span class="mi">1234567</span><span class="p">,</span>
+	    <span class="n">content</span> <span class="ow">=</span> <span class="s">"42 is the answer!"</span><span class="p">}</span>
+	</pre></div>
+
+	<p><code>:q</code> will get us out of the prompt.</p>
+
+	<h3>
+	  <a name="creating-the-form" class="anchor" href="#creating-the-form"><span class="octicon octicon-link"></span></a>Creating the Form</h3>
+
+	<p>Now we can create our forms. Since we are using Digestive Functors with Snap and Heist we will need a couple imports. Digestive Functors can be used in other contexts, including against JSON data.</p>
 
-<div class="highlight highlight-Haskell"><pre><span class="kr">import</span>           <span class="nn">Text.Digestive</span>
-<span class="kr">import</span>           <span class="nn">Text.Digestive.Heist</span>
-<span class="kr">import</span>           <span class="nn">Text.Digestive.Snap</span>
-</pre></div>
+	<div class="highlight highlight-Haskell"><pre><span class="kr">import</span>           <span class="nn">Text.Digestive</span>
+	    <span class="kr">import</span>           <span class="nn">Text.Digestive.Heist</span>
+	    <span class="kr">import</span>           <span class="nn">Text.Digestive.Snap</span>
+	</pre></div>
 
-<p>Along with these imports, we need to tell cabal what packages to include when installing. Add these digestive-functor imports to <code>df-one.cabal</code>.</p>
+	<p>Along with these imports, we need to tell cabal what packages to include when installing. Add these digestive-functor imports to <code>df-one.cabal</code>.</p>
 
-<div class="highlight highlight-Haskell"><pre>  <span class="kt">Build</span><span class="o">-</span><span class="n">depends</span><span class="kt">:</span>
-    <span class="n">bytestring</span>                <span class="o">&gt;=</span> <span class="mf">0.9</span><span class="o">.</span><span class="mi">1</span>   <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.11</span><span class="p">,</span>
-    <span class="n">heist</span>                     <span class="o">&gt;=</span> <span class="mf">0.13</span>    <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.14</span><span class="p">,</span>
-    <span class="kt">MonadCatchIO</span><span class="o">-</span><span class="n">transformers</span> <span class="o">&gt;=</span> <span class="mf">0.2</span><span class="o">.</span><span class="mi">1</span>   <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">,</span>
-    <span class="n">mtl</span>                       <span class="o">&gt;=</span> <span class="mi">2</span>       <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
-    <span class="n">snap</span>                      <span class="o">&gt;=</span> <span class="mf">0.11</span>    <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.13</span><span class="p">,</span>
-    <span class="n">snap</span><span class="o">-</span><span class="n">core</span>                 <span class="o">&gt;=</span> <span class="mf">0.9</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.11</span><span class="p">,</span>
-    <span class="n">snap</span><span class="o">-</span><span class="n">server</span>               <span class="o">&gt;=</span> <span class="mf">0.9</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.11</span><span class="p">,</span>
-    <span class="n">snap</span><span class="o">-</span><span class="n">loader</span><span class="o">-</span><span class="n">static</span>        <span class="o">&gt;=</span> <span class="mf">0.9</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.10</span><span class="p">,</span>
-    <span class="n">text</span>                      <span class="o">&gt;=</span> <span class="mf">0.11</span>    <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.12</span><span class="p">,</span>
-    <span class="n">time</span>                      <span class="o">&gt;=</span> <span class="mf">1.1</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">1.5</span><span class="p">,</span>
-    <span class="n">xmlhtml</span>                   <span class="o">&gt;=</span> <span class="mf">0.1</span><span class="p">,</span>
-    <span class="n">digestive</span><span class="o">-</span><span class="n">functors</span>        <span class="o">&gt;=</span><span class="mf">0.6</span><span class="o">.</span><span class="mi">1</span>    <span class="o">&amp;&amp;</span> <span class="o">&lt;</span><span class="mf">0.7</span><span class="p">,</span>
-    <span class="n">digestive</span><span class="o">-</span><span class="n">functors</span><span class="o">-</span><span class="n">snap</span>   <span class="o">&gt;=</span> <span class="mf">0.6</span><span class="o">.</span><span class="mf">0.0</span> <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.7</span><span class="o">.</span><span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">digestive</span><span class="o">-</span><span class="n">functors</span><span class="o">-</span><span class="n">heist</span>  <span class="o">==</span> <span class="mf">0.7</span><span class="o">.</span><span class="mf">0.0</span>
-</pre></div>
-
-<p>Now we are going to construct the actual form. We'll use a helper function <code>isNotEmpty</code> to check the inputs and make sure they aren't empty. <code>isNotEmpty</code> will take a <code>T.Text</code> and return a <code>Bool</code> to us.</p>
-
-<div class="highlight highlight-Haskell"><pre><span class="nf">isNotEmpty</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
-<span class="nf">isNotEmpty</span> <span class="ow">=</span> <span class="n">not</span> <span class="o">.</span> <span class="kt">T</span><span class="o">.</span><span class="n">null</span>
-</pre></div>
-
-<p>We will also define some error strings to display if the input isn't quite right.</p>
+	<div class="highlight highlight-Haskell"><pre>  <span class="kt">Build</span><span class="o">-</span><span class="n">depends</span><span class="kt">:</span>
+	    <span class="n">bytestring</span>                <span class="o">&gt;=</span> <span class="mf">0.9</span><span class="o">.</span><span class="mi">1</span>   <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.11</span><span class="p">,</span>
+	    <span class="n">heist</span>                     <span class="o">&gt;=</span> <span class="mf">0.13</span>    <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.14</span><span class="p">,</span>
+	    <span class="kt">MonadCatchIO</span><span class="o">-</span><span class="n">transformers</span> <span class="o">&gt;=</span> <span class="mf">0.2</span><span class="o">.</span><span class="mi">1</span>   <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">,</span>
+	    <span class="n">mtl</span>                       <span class="o">&gt;=</span> <span class="mi">2</span>       <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
+	    <span class="n">snap</span>                      <span class="o">&gt;=</span> <span class="mf">0.11</span>    <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.13</span><span class="p">,</span>
+	    <span class="n">snap</span><span class="o">-</span><span class="n">core</span>                 <span class="o">&gt;=</span> <span class="mf">0.9</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.11</span><span class="p">,</span>
+	    <span class="n">snap</span><span class="o">-</span><span class="n">server</span>               <span class="o">&gt;=</span> <span class="mf">0.9</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.11</span><span class="p">,</span>
+	    <span class="n">snap</span><span class="o">-</span><span class="n">loader</span><span class="o">-</span><span class="n">static</span>        <span class="o">&gt;=</span> <span class="mf">0.9</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.10</span><span class="p">,</span>
+	    <span class="n">text</span>                      <span class="o">&gt;=</span> <span class="mf">0.11</span>    <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.12</span><span class="p">,</span>
+	    <span class="n">time</span>                      <span class="o">&gt;=</span> <span class="mf">1.1</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">1.5</span><span class="p">,</span>
+	    <span class="n">xmlhtml</span>                   <span class="o">&gt;=</span> <span class="mf">0.1</span><span class="p">,</span>
+	    <span class="n">digestive</span><span class="o">-</span><span class="n">functors</span>        <span class="o">&gt;=</span><span class="mf">0.6</span><span class="o">.</span><span class="mi">1</span>    <span class="o">&amp;&amp;</span> <span class="o">&lt;</span><span class="mf">0.7</span><span class="p">,</span>
+	    <span class="n">digestive</span><span class="o">-</span><span class="n">functors</span><span class="o">-</span><span class="n">snap</span>   <span class="o">&gt;=</span> <span class="mf">0.6</span><span class="o">.</span><span class="mf">0.0</span> <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.7</span><span class="o">.</span><span class="mf">0.0</span><span class="p">,</span>
+	    <span class="n">digestive</span><span class="o">-</span><span class="n">functors</span><span class="o">-</span><span class="n">heist</span>  <span class="o">==</span> <span class="mf">0.7</span><span class="o">.</span><span class="mf">0.0</span>
+	</pre></div>
+
+	<p>Now we are going to construct the actual form. We'll use a helper function <code>isNotEmpty</code> to check the inputs and make sure they aren't empty. <code>isNotEmpty</code> will take a <code>T.Text</code> and return a <code>Bool</code> to us.</p>
+
+	<div class="highlight highlight-Haskell"><pre><span class="nf">isNotEmpty</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
+	    <span class="nf">isNotEmpty</span> <span class="ow">=</span> <span class="n">not</span> <span class="o">.</span> <span class="kt">T</span><span class="o">.</span><span class="n">null</span>
+	</pre></div>
+
+	<p>We will also define some error strings to display if the input isn't quite right.</p>
 
-<div class="highlight highlight-Haskell"><pre><span class="nf">userErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">userErrMsg</span> <span class="ow">=</span> <span class="s">"Username can not be empty"</span>
-<span class="nf">tsErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">tsErrMsg</span> <span class="ow">=</span> <span class="s">"timestamp must be an Int"</span>
-<span class="nf">contentErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">contentErrMsg</span> <span class="ow">=</span> <span class="s">"Tweet can not be empty"</span>
-</pre></div>
+	<div class="highlight highlight-Haskell"><pre><span class="nf">userErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">userErrMsg</span> <span class="ow">=</span> <span class="s">"Username can not be empty"</span>
+	    <span class="nf">tsErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">tsErrMsg</span> <span class="ow">=</span> <span class="s">"timestamp must be an Int"</span>
+	    <span class="nf">contentErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">contentErrMsg</span> <span class="ow">=</span> <span class="s">"Tweet can not be empty"</span>
+	</pre></div>
 
-<p>We can then use these in our form:</p>
-
-<div class="highlight highlight-Haskell"><pre><span class="nf">tweetForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">Tweet</span>
-<span class="nf">tweetForm</span> <span class="ow">=</span> <span class="kt">Tweet</span>
-  <span class="o">&lt;$&gt;</span> <span class="s">"username"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">userErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
-  <span class="o">&lt;*&gt;</span> <span class="s">"timestamp"</span> <span class="o">.:</span> <span class="n">stringRead</span> <span class="n">tsErrMsg</span> <span class="kt">Nothing</span>
-  <span class="o">&lt;*&gt;</span> <span class="s">"content"</span>   <span class="o">.:</span> <span class="n">check</span> <span class="n">contentErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
-</pre></div>
-
-<p>We are using a simple <code>check</code> function which takes an error string, a test function and a form to validate. This may seem a little confusing, until we examine that <code>text</code>[^2] returns a <code>Formlet</code> for us.</p>
+	<p>We can then use these in our form:</p>
+
+	<div class="highlight highlight-Haskell"><pre><span class="nf">tweetForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">Tweet</span>
+	    <span class="nf">tweetForm</span> <span class="ow">=</span> <span class="kt">Tweet</span>
+	    <span class="o">&lt;$&gt;</span> <span class="s">"username"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">userErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
+	    <span class="o">&lt;*&gt;</span> <span class="s">"timestamp"</span> <span class="o">.:</span> <span class="n">stringRead</span> <span class="n">tsErrMsg</span> <span class="kt">Nothing</span>
+	    <span class="o">&lt;*&gt;</span> <span class="s">"content"</span>   <span class="o">.:</span> <span class="n">check</span> <span class="n">contentErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
+	</pre></div>
+
+	<p>We are using a simple <code>check</code> function which takes an error string, a test function and a form to validate. This may seem a little confusing, until we examine that <code>text</code>[^2] returns a <code>Formlet</code> for us.</p>
 
-<p>In the case of <code>text</code>, we can choose to specify a default value (for use as the username or content). Currently we have <code>Nothing</code>, or no default value. The alternative is <code>Just "sometext"</code>, which is a default value of <code>sometext</code>.</p>
+	<p>In the case of <code>text</code>, we can choose to specify a default value (for use as the username or content). Currently we have <code>Nothing</code>, or no default value. The alternative is <code>Just "sometext"</code>, which is a default value of <code>sometext</code>.</p>
 
-<p><code>stringRead</code> is similar to <code>text</code>, but for parseable and serializable values, such as our <code>Int</code>. <code>stringRead</code> takes an error string. After giving it an error string, the combination of <code>stringRead "error string"</code> acts exactly the same as <code>text</code>, which means we get to specify a default value. Again either <code>Nothing</code> or <code>Just 5</code>[^3].</p>
+	<p><code>stringRead</code> is similar to <code>text</code>, but for parseable and serializable values, such as our <code>Int</code>. <code>stringRead</code> takes an error string. After giving it an error string, the combination of <code>stringRead "error string"</code> acts exactly the same as <code>text</code>, which means we get to specify a default value. Again either <code>Nothing</code> or <code>Just 5</code>[^3].</p>
 
-<p>The <code>&lt;$&gt;</code> and <code>&lt;*&gt;</code> operators come from Control.Applicative and we have to import it to use them:</p>
+	<p>The <code>&lt;$&gt;</code> and <code>&lt;*&gt;</code> operators come from Control.Applicative and we have to import it to use them:</p>
 
-<div class="highlight highlight-Haskell"><pre><span class="kr">import</span> <span class="nn">Control.Applicative</span>
-</pre></div>
+	<div class="highlight highlight-Haskell"><pre><span class="kr">import</span> <span class="nn">Control.Applicative</span>
+	</pre></div>
 
-<p>Our <code>Twitter.hs</code> now looks like this:</p>
+	<p>Our <code>Twitter.hs</code> now looks like this:</p>
 
-<div class="highlight highlight-Haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
-<span class="kr">module</span> <span class="nn">Twitter</span>
-<span class="p">(</span><span class="kt">Tweet</span>
-  <span class="p">)</span> <span class="kr">where</span>
+	<div class="highlight highlight-Haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
+	    <span class="kr">module</span> <span class="nn">Twitter</span>
+	    <span class="p">(</span><span class="kt">Tweet</span>
+	    <span class="p">)</span> <span class="kr">where</span>
 
-<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
-<span class="kr">import</span>           <span class="nn">Text.Digestive</span>
-<span class="kr">import</span>           <span class="nn">Text.Digestive.Heist</span>
-<span class="kr">import</span>           <span class="nn">Text.Digestive.Snap</span>
-<span class="kr">import</span>           <span class="nn">Control.Applicative</span>
+	    <span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
+	    <span class="kr">import</span>           <span class="nn">Text.Digestive</span>
+	    <span class="kr">import</span>           <span class="nn">Text.Digestive.Heist</span>
+	    <span class="kr">import</span>           <span class="nn">Text.Digestive.Snap</span>
+	    <span class="kr">import</span>           <span class="nn">Control.Applicative</span>
 
-<span class="kr">data</span> <span class="kt">Tweet</span> <span class="ow">=</span> <span class="kt">Tweet</span> <span class="p">{</span>
-  <span class="n">username</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span><span class="p">,</span>
-  <span class="n">timestamp</span> <span class="ow">::</span> <span class="kt">Int</span><span class="p">,</span>
-  <span class="n">content</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+	    <span class="kr">data</span> <span class="kt">Tweet</span> <span class="ow">=</span> <span class="kt">Tweet</span> <span class="p">{</span>
+	    <span class="n">username</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span><span class="p">,</span>
+	    <span class="n">timestamp</span> <span class="ow">::</span> <span class="kt">Int</span><span class="p">,</span>
+	    <span class="n">content</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
 
-<span class="nf">isNotEmpty</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
-<span class="nf">isNotEmpty</span> <span class="ow">=</span> <span class="n">not</span> <span class="o">.</span> <span class="kt">T</span><span class="o">.</span><span class="n">null</span>
+	    <span class="nf">isNotEmpty</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
+	    <span class="nf">isNotEmpty</span> <span class="ow">=</span> <span class="n">not</span> <span class="o">.</span> <span class="kt">T</span><span class="o">.</span><span class="n">null</span>
 
-<span class="nf">userErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">userErrMsg</span> <span class="ow">=</span> <span class="s">"Username can not be empty"</span>
-<span class="nf">tsErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">tsErrMsg</span> <span class="ow">=</span> <span class="s">"timestamp must be an Int"</span>
-<span class="nf">contentErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">contentErrMsg</span> <span class="ow">=</span> <span class="s">"Tweet can not be empty"</span>
+	    <span class="nf">userErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">userErrMsg</span> <span class="ow">=</span> <span class="s">"Username can not be empty"</span>
+	    <span class="nf">tsErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">tsErrMsg</span> <span class="ow">=</span> <span class="s">"timestamp must be an Int"</span>
+	    <span class="nf">contentErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">contentErrMsg</span> <span class="ow">=</span> <span class="s">"Tweet can not be empty"</span>
 
-<span class="nf">tweetForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">Tweet</span>
-<span class="nf">tweetForm</span> <span class="ow">=</span> <span class="kt">Tweet</span>
-  <span class="o">&lt;$&gt;</span> <span class="s">"username"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">userErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
-  <span class="o">&lt;*&gt;</span> <span class="s">"timestamp"</span> <span class="o">.:</span> <span class="n">stringRead</span> <span class="n">tsErrMsg</span> <span class="kt">Nothing</span>
-  <span class="o">&lt;*&gt;</span> <span class="s">"content"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">contentErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
-</pre></div>
+	    <span class="nf">tweetForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">Tweet</span>
+	    <span class="nf">tweetForm</span> <span class="ow">=</span> <span class="kt">Tweet</span>
+	    <span class="o">&lt;$&gt;</span> <span class="s">"username"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">userErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
+	    <span class="o">&lt;*&gt;</span> <span class="s">"timestamp"</span> <span class="o">.:</span> <span class="n">stringRead</span> <span class="n">tsErrMsg</span> <span class="kt">Nothing</span>
+	    <span class="o">&lt;*&gt;</span> <span class="s">"content"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">contentErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
+	</pre></div>
 
-<p>In ghci, we can play around with the form a bit and see what happens.</p>
+	<p>In ghci, we can play around with the form a bit and see what happens.</p>
 
-<div class="highlight highlight-bash"><pre>ghci src/Twitter.hs
-</pre></div>
+	<div class="highlight highlight-bash"><pre>ghci src/Twitter.hs
+	</pre></div>
 
-<p>gets us into the prompt and <code>getForm</code> will give us the resulting view:</p>
+	<p>gets us into the prompt and <code>getForm</code> will give us the resulting view:</p>
 
-<div class="highlight highlight-Haskell"><pre><span class="o">*</span><span class="kt">Twitter</span><span class="o">&gt;</span> <span class="n">getForm</span> <span class="s">"MyTweetForm"</span> <span class="n">tweetForm</span>
+	<div class="highlight highlight-Haskell"><pre><span class="o">*</span><span class="kt">Twitter</span><span class="o">&gt;</span> <span class="n">getForm</span> <span class="s">"MyTweetForm"</span> <span class="n">tweetForm</span>
 
-<span class="kt">View</span> <span class="s">"thing"</span> <span class="kt">[]</span> <span class="kt">App</span>
-  <span class="kt">App</span>
-    <span class="kt">Map</span> <span class="kr">_</span>
-      <span class="kt">Ref</span> <span class="s">"username"</span>
-        <span class="kt">Map</span> <span class="kr">_</span>
-          <span class="kt">Pure</span> <span class="p">(</span><span class="kt">Text</span> <span class="s">""</span><span class="p">)</span>
-    <span class="kt">Ref</span> <span class="s">"timestamp"</span>
-      <span class="kt">Map</span> <span class="kr">_</span>
-        <span class="kt">Pure</span> <span class="p">(</span><span class="kt">Text</span> <span class="s">""</span><span class="p">)</span>
-  <span class="kt">Ref</span> <span class="s">"content"</span>
-    <span class="kt">Map</span> <span class="kr">_</span>
-      <span class="kt">Pure</span> <span class="p">(</span><span class="kt">Text</span> <span class="s">""</span><span class="p">)</span>
- <span class="kt">[]</span> <span class="kt">[]</span> <span class="kt">Get</span>
-</pre></div>
+	    <span class="kt">View</span> <span class="s">"thing"</span> <span class="kt">[]</span> <span class="kt">App</span>
+	    <span class="kt">App</span>
+	    <span class="kt">Map</span> <span class="kr">_</span>
+	    <span class="kt">Ref</span> <span class="s">"username"</span>
+            <span class="kt">Map</span> <span class="kr">_</span>
+            <span class="kt">Pure</span> <span class="p">(</span><span class="kt">Text</span> <span class="s">""</span><span class="p">)</span>
+	    <span class="kt">Ref</span> <span class="s">"timestamp"</span>
+	    <span class="kt">Map</span> <span class="kr">_</span>
+            <span class="kt">Pure</span> <span class="p">(</span><span class="kt">Text</span> <span class="s">""</span><span class="p">)</span>
+	    <span class="kt">Ref</span> <span class="s">"content"</span>
+	    <span class="kt">Map</span> <span class="kr">_</span>
+	    <span class="kt">Pure</span> <span class="p">(</span><span class="kt">Text</span> <span class="s">""</span><span class="p">)</span>
+	    <span class="kt">[]</span> <span class="kt">[]</span> <span class="kt">Get</span>
+	</pre></div>
 
-<h3>
-<a name="building-the-heist-templates" class="anchor" href="#building-the-heist-templates"><span class="octicon octicon-link"></span></a>Building The Heist Templates</h3>
+	<h3>
+	  <a name="building-the-heist-templates" class="anchor" href="#building-the-heist-templates"><span class="octicon octicon-link"></span></a>Building The Heist Templates</h3>
 
-<p>Before we can render out our form we should write a template. <code>Text.Digestive.Heist</code> gives us some splices (bits of Heist templates) that we can use to render out our form.</p>
+	<p>Before we can render out our form we should write a template. <code>Text.Digestive.Heist</code> gives us some splices (bits of Heist templates) that we can use to render out our form.</p>
 
-<p>In a new template file at <code>snaplets/heist/templates/tweetform.tpl</code></p>
+	<p>In a new template file at <code>snaplets/heist/templates/tweetform.tpl</code></p>
 
-<div class="highlight highlight-Haskell"><pre><span class="o">&lt;</span><span class="n">apply</span> <span class="n">template</span><span class="ow">=</span><span class="s">"base"</span><span class="o">&gt;</span>
-  <span class="o">&lt;</span><span class="n">dfForm</span> <span class="n">action</span><span class="ow">=</span><span class="s">"/tweet"</span><span class="o">&gt;</span>
-    <span class="o">&lt;</span><span class="n">dfChildErrorList</span> <span class="n">ref</span><span class="ow">=</span><span class="s">""</span> <span class="o">/&gt;</span>
+	<div class="highlight highlight-Haskell"><pre><span class="o">&lt;</span><span class="n">apply</span> <span class="n">template</span><span class="ow">=</span><span class="s">"base"</span><span class="o">&gt;</span>
+	    <span class="o">&lt;</span><span class="n">dfForm</span> <span class="n">action</span><span class="ow">=</span><span class="s">"/tweet"</span><span class="o">&gt;</span>
+	    <span class="o">&lt;</span><span class="n">dfChildErrorList</span> <span class="n">ref</span><span class="ow">=</span><span class="s">""</span> <span class="o">/&gt;</span>
 
-    <span class="o">&lt;</span><span class="n">dfLabel</span> <span class="n">ref</span><span class="ow">=</span><span class="s">"username"</span><span class="o">&gt;</span><span class="kt">Username:</span> <span class="o">&lt;/</span><span class="n">dfLabel</span><span class="o">&gt;</span>
-    <span class="o">&lt;</span><span class="n">dfInputText</span> <span class="n">ref</span><span class="ow">=</span><span class="s">"username"</span> <span class="o">/&gt;</span>
-    <span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span>
+	    <span class="o">&lt;</span><span class="n">dfLabel</span> <span class="n">ref</span><span class="ow">=</span><span class="s">"username"</span><span class="o">&gt;</span><span class="kt">Username:</span> <span class="o">&lt;/</span><span class="n">dfLabel</span><span class="o">&gt;</span>
+	    <span class="o">&lt;</span><span class="n">dfInputText</span> <span class="n">ref</span><span class="ow">=</span><span class="s">"username"</span> <span class="o">/&gt;</span>
+	    <span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span>
 
-    <span class="o">&lt;</span><span class="n">dfLabel</span> <span class="n">ref</span><span class="ow">=</span><span class="s">"timestamp"</span><span class="o">&gt;</span><span class="kt">Timestamp:</span> <span class="o">&lt;/</span><span class="n">dfLabel</span><span class="o">&gt;</span>
-    <span class="o">&lt;</span><span class="n">dfInput</span> <span class="n">ref</span><span class="ow">=</span><span class="s">"timestamp"</span> <span class="kr">type</span><span class="ow">=</span><span class="s">"number"</span> <span class="n">min</span><span class="ow">=</span><span class="s">"0"</span> <span class="n">step</span><span class="ow">=</span><span class="s">"1"</span> <span class="n">pattern</span><span class="ow">=</span><span class="s">"</span><span class="se">\</span><span class="err">d+</span><span class="se">"</span><span class="s"> /&gt;</span>
-<span class="s">    &lt;br&gt;</span>
-
-<span class="s">    &lt;dfLabel ref="</span><span class="n">content</span><span class="s">"&gt;Content: &lt;/dfLabel&gt;</span>
-<span class="s">    &lt;dfInputTextArea ref="</span><span class="n">content</span><span class="s">" /&gt;</span>
-<span class="s">    &lt;br&gt;</span>
+	    <span class="o">&lt;</span><span class="n">dfLabel</span> <span class="n">ref</span><span class="ow">=</span><span class="s">"timestamp"</span><span class="o">&gt;</span><span class="kt">Timestamp:</span> <span class="o">&lt;/</span><span class="n">dfLabel</span><span class="o">&gt;</span>
+	    <span class="o">&lt;</span><span class="n">dfInput</span> <span class="n">ref</span><span class="ow">=</span><span class="s">"timestamp"</span> <span class="kr">type</span><span class="ow">=</span><span class="s">"number"</span> <span class="n">min</span><span class="ow">=</span><span class="s">"0"</span> <span class="n">step</span><span class="ow">=</span><span class="s">"1"</span> <span class="n">pattern</span><span class="ow">=</span><span class="s">"</span><span class="se">\</span><span class="err">d+</span><span class="se">"</span><span class="s"> /&gt;</span>
+	    <span class="s">    &lt;br&gt;</span>
+
+	    <span class="s">    &lt;dfLabel ref="</span><span class="n">content</span><span class="s">"&gt;Content: &lt;/dfLabel&gt;</span>
+	    <span class="s">    &lt;dfInputTextArea ref="</span><span class="n">content</span><span class="s">" /&gt;</span>
+	    <span class="s">    &lt;br&gt;</span>
 
-<span class="s">    &lt;dfInputSubmit value="</span><span class="kt">Submit</span><span class="s">" /&gt;</span>
-<span class="s">  &lt;/dfForm&gt;</span>
-<span class="s">&lt;/apply&gt;</span>
-</pre></div>
+	    <span class="s">    &lt;dfInputSubmit value="</span><span class="kt">Submit</span><span class="s">" /&gt;</span>
+	    <span class="s">  &lt;/dfForm&gt;</span>
+	    <span class="s">&lt;/apply&gt;</span>
+	</pre></div>
 
-<p>The tags that start with <code>df</code> are processed by Digestive Functors before displaying. We are using a couple different tags: <code>dfForm</code>, <code>dfChildErrorList</code>, <code>dfLabel</code>, <code>dfInputText</code>, <code>dfInput</code>, <code>dfInputTextArea</code> and <code>dfInputSubmit</code>. We will go into these a bit more at the end of this chapter, but for now the important part is <code>ref</code>, which Digestive Functors uses to identify form elements.</p>
+	<p>The tags that start with <code>df</code> are processed by Digestive Functors before displaying. We are using a couple different tags: <code>dfForm</code>, <code>dfChildErrorList</code>, <code>dfLabel</code>, <code>dfInputText</code>, <code>dfInput</code>, <code>dfInputTextArea</code> and <code>dfInputSubmit</code>. We will go into these a bit more at the end of this chapter, but for now the important part is <code>ref</code>, which Digestive Functors uses to identify form elements.</p>
 
-<p>When rendered without errors (and a form name of "tweet", more on that in a sec), this template will look like this:</p>
+	<p>When rendered without errors (and a form name of "tweet", more on that in a sec), this template will look like this:</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">"/tweet"</span> <span class="na">method=</span><span class="s">"POST"</span> <span class="na">enctype=</span><span class="s">"application/x-www-form-urlencoded"</span><span class="nt">&gt;</span>
+	<div class="highlight highlight-html"><pre><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">"/tweet"</span> <span class="na">method=</span><span class="s">"POST"</span> <span class="na">enctype=</span><span class="s">"application/x-www-form-urlencoded"</span><span class="nt">&gt;</span>
 
-    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"tweet.username"</span><span class="nt">&gt;</span>Username: <span class="nt">&lt;/label&gt;</span>
-    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">id=</span><span class="s">"tweet.username"</span> <span class="na">name=</span><span class="s">"tweet.username"</span> <span class="na">value=</span><span class="s">""</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;br&gt;</span>
-
-    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"tweet.timestamp"</span><span class="nt">&gt;</span>Timestamp: <span class="nt">&lt;/label&gt;</span>
-    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"number"</span> <span class="na">min=</span><span class="s">"0"</span> <span class="na">step=</span><span class="s">"1"</span> <span class="na">pattern=</span><span class="s">"\d+"</span> <span class="na">id=</span><span class="s">"tweet.timestamp"</span> <span class="na">name=</span><span class="s">"tweet.timestamp"</span> <span class="na">value=</span><span class="s">""</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;br&gt;</span>
-
-    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"tweet.content"</span><span class="nt">&gt;</span>Content: <span class="nt">&lt;/label&gt;</span>
-    <span class="nt">&lt;textarea</span> <span class="na">id=</span><span class="s">"tweet.content"</span> <span class="na">name=</span><span class="s">"tweet.content"</span><span class="nt">&gt;&lt;/textarea&gt;</span>
-    <span class="nt">&lt;br&gt;</span>
-
-    <span class="nt">&lt;input</span> <span class="na">value=</span><span class="s">"Submit"</span> <span class="na">type=</span><span class="s">"submit"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;/form&gt;</span>
-</pre></div>
-
-<p>You'll notice that the field ids and names are all namespaced by the form name (tweet). We also get a couple things for free, including encodingtype, method, some types and values.</p>
-
-<p>These values will keep the values that are input if there are errors in other fields and the errors will be displayed at the top of the form.</p>
-
-<h3>
-<a name="the-formhandler-routing-function" class="anchor" href="#the-formhandler-routing-function"><span class="octicon octicon-link"></span></a>The FormHandler Routing Function</h3>
-
-<p>We can now write our Snap Form Handler:</p>
-
-<div class="highlight highlight-Haskell"><pre><span class="nf">tweetFormHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
-<span class="nf">tweetFormHandler</span> <span class="ow">=</span> <span class="kr">do</span>
-  <span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="ow">&lt;-</span> <span class="n">runForm</span> <span class="s">"tweet"</span> <span class="n">tweetForm</span>
-  <span class="kr">case</span> <span class="n">result</span> <span class="kr">of</span>
-    <span class="kt">Just</span> <span class="n">x</span>  <span class="ow">-&gt;</span> <span class="n">writeText</span> <span class="o">$</span> <span class="kt">T</span><span class="o">.</span><span class="n">pack</span> <span class="o">$</span> <span class="n">show</span> <span class="n">x</span>
-    <span class="kt">Nothing</span> <span class="ow">-&gt;</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="n">bindDigestiveSplices</span> <span class="n">view</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"tweetform"</span>
-</pre></div>
-
-<p>We now need to export <code>tweetFormHandler</code> so we can use it later.</p>
-
-<div class="highlight highlight-Haskell"><pre><span class="kr">module</span> <span class="nn">Twitter</span>
-<span class="p">(</span><span class="kt">Tweet</span>
-<span class="p">,</span><span class="nf">tweetFormHandler</span>  <span class="p">)</span> <span class="kr">where</span>
-</pre></div>
-
-<p>Remember when we used <code>getForm</code> to test our form in ghci? Well it so happens that Digestive Functors Snap has a function that will automatically choose between <code>getForm</code> and <code>postForm</code> for us based on the type of request. It is called <code>runForm</code>. In addition, runForm takes the form name that we saw in the html before ("tweet"). This name can be any string we want and our forms will automatically be namespaced by it.</p>
-
-<p>Essentially what's going on here is that if we can parse a <code>Tweet</code> datatype, result is where it will be stored and <code>Just x</code> will match in our case statement. If we can't parse a <code>Tweet</code>, result will be <code>Nothing</code> and the <code>view</code> will be rendered out with our <code>tweetform</code> template. <code>bindDigestiveSplices</code> is what allows us to use the <code>dfInput</code> and other <code>df</code> tags in our html.</p>
-
-<p>We also need some more imports. I've imported only what we need from Snap.Core and Snap.Snaplet.Heist to make it more obvious where these functions are coming from. In the future, to import the whole modules, you can delete the parentheses and the text inside them.</p>
-
-<div class="highlight highlight-Haskell"><pre><span class="kr">import</span>           <span class="nn">Snap.Core</span> <span class="p">(</span><span class="nf">writeText</span><span class="p">)</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span> <span class="p">(</span><span class="nf">heistLocal</span><span class="p">,</span> <span class="nf">render</span><span class="p">)</span>
-<span class="kr">import</span>           <span class="nn">Application</span>
-</pre></div>
-
-<h3>
-<a name="final-steps" class="anchor" href="#final-steps"><span class="octicon octicon-link"></span></a>Final Steps</h3>
-
-<p>Now that we have everything set up in <code>src/Twitter.hs</code> and our template written, let's go into <code>src/Site.hs</code> and create a route. First we'll add Twitter to our list of imports.</p>
-
-<div class="highlight highlight-Haskell"><pre><span class="kr">import</span>           <span class="nn">Control.Applicative</span>
-<span class="kr">import</span>           <span class="nn">Data.ByteString</span> <span class="p">(</span><span class="kt">ByteString</span><span class="p">)</span>
-<span class="kr">import</span>           <span class="nn">Data.Maybe</span>
-<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
-<span class="kr">import</span>           <span class="nn">Snap.Core</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth.Backends.JsonFile</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Session.Backends.CookieSession</span>
-<span class="kr">import</span>           <span class="nn">Snap.Util.FileServe</span>
-<span class="kr">import</span>           <span class="nn">Heist</span>
-<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Heist.Interpreted</span> <span class="k">as</span> <span class="n">I</span>
-<span class="kr">import</span>           <span class="nn">Twitter</span>
-</pre></div>
-
-<p>Now we can add our <code>tweetFormHandler</code> to our routes. Since our form is already set up to POST to /tweet, we'll use that as our route:</p>
-
-<div class="highlight highlight-Haskell"><pre><span class="c1">------------------------------------------------------------------------------</span>
-<span class="c1">-- | The application's routes.</span>
-<span class="nf">routes</span> <span class="ow">::</span> <span class="p">[(</span><span class="kt">ByteString</span><span class="p">,</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span><span class="p">)]</span>
-<span class="nf">routes</span> <span class="ow">=</span> <span class="p">[</span> <span class="p">(</span><span class="s">"/logins"</span><span class="p">,</span>    <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLoginSubmit</span><span class="p">)</span>
-         <span class="p">,</span> <span class="p">(</span><span class="s">"/logout"</span><span class="p">,</span>   <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLogout</span><span class="p">)</span>
-         <span class="p">,</span> <span class="p">(</span><span class="s">"/new_user"</span><span class="p">,</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">handleNewUser</span><span class="p">)</span>
-         <span class="p">,</span> <span class="p">(</span><span class="s">"/tweet"</span><span class="p">,</span> <span class="n">tweetFormHandler</span><span class="p">)</span>
-         <span class="p">,</span> <span class="p">(</span><span class="s">""</span><span class="p">,</span>          <span class="n">serveDirectory</span> <span class="s">"static"</span><span class="p">)</span>
-         <span class="p">]</span>
-</pre></div>
-
-<p>That's it. Run <code>cabal install</code> and then we can run <code>df-one</code> to run our app.</p>
-
-<p>Visit <code>localhost:8000/tweet</code> in a browser to see our form and error handling in action!</p>
-
-<p>Here is our finalized <code>src/Twitter.hs</code></p>
-
-<div class="highlight highlight-Haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
-<span class="kr">module</span> <span class="nn">Twitter</span>
-<span class="p">(</span><span class="kt">Tweet</span>
-<span class="p">,</span><span class="nf">tweetFormHandler</span>  <span class="p">)</span> <span class="kr">where</span>
-
-<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
-<span class="kr">import</span>           <span class="nn">Text.Digestive</span>
-<span class="kr">import</span>           <span class="nn">Text.Digestive.Heist</span>
-<span class="kr">import</span>           <span class="nn">Text.Digestive.Snap</span>
-<span class="kr">import</span>           <span class="nn">Control.Applicative</span>
-<span class="kr">import</span>           <span class="nn">Snap.Core</span> <span class="p">(</span><span class="nf">writeText</span><span class="p">)</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
-<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span> <span class="p">(</span><span class="nf">heistLocal</span><span class="p">,</span> <span class="nf">render</span><span class="p">)</span>
-<span class="kr">import</span>           <span class="nn">Application</span>
-
-<span class="kr">data</span> <span class="kt">Tweet</span> <span class="ow">=</span> <span class="kt">Tweet</span> <span class="p">{</span>
-  <span class="n">username</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span><span class="p">,</span>
-  <span class="n">timestamp</span> <span class="ow">::</span> <span class="kt">Int</span><span class="p">,</span>
-  <span class="n">content</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
-
-<span class="nf">isNotEmpty</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
-<span class="nf">isNotEmpty</span> <span class="ow">=</span> <span class="n">not</span> <span class="o">.</span> <span class="kt">T</span><span class="o">.</span><span class="n">null</span>
-
-<span class="nf">userErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">userErrMsg</span> <span class="ow">=</span> <span class="s">"Username can not be empty"</span>
-<span class="nf">tsErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">tsErrMsg</span> <span class="ow">=</span> <span class="s">"timestamp must be an Int"</span>
-<span class="nf">contentErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
-<span class="nf">contentErrMsg</span> <span class="ow">=</span> <span class="s">"Tweet can not be empty"</span>
-
-<span class="nf">tweetForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">Tweet</span>
-<span class="nf">tweetForm</span> <span class="ow">=</span> <span class="kt">Tweet</span>
-  <span class="o">&lt;$&gt;</span> <span class="s">"username"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">userErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
-  <span class="o">&lt;*&gt;</span> <span class="s">"timestamp"</span> <span class="o">.:</span> <span class="n">stringRead</span> <span class="n">tsErrMsg</span> <span class="kt">Nothing</span>
-  <span class="o">&lt;*&gt;</span> <span class="s">"content"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">contentErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
-
-<span class="nf">tweetFormHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
-<span class="nf">tweetFormHandler</span> <span class="ow">=</span> <span class="kr">do</span>
-  <span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="ow">&lt;-</span> <span class="n">runForm</span> <span class="s">"tweet"</span> <span class="n">tweetForm</span>
-  <span class="kr">case</span> <span class="n">result</span> <span class="kr">of</span>
-    <span class="kt">Just</span> <span class="n">x</span>  <span class="ow">-&gt;</span> <span class="n">writeText</span> <span class="o">$</span> <span class="kt">T</span><span class="o">.</span><span class="n">pack</span> <span class="o">$</span> <span class="n">show</span> <span class="n">x</span>
-    <span class="kt">Nothing</span> <span class="ow">-&gt;</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="n">bindDigestiveSplices</span> <span class="n">view</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"tweetform"</span>
-</pre></div>
-
-<p>[^1]: If you don't know what this is, it would be a good idea to look up the difference between <code>ByteString</code>, <code>Text</code> and <code>String</code> at some point.</p>
-
-<p>[^2]: and a bunch of other functions we will examine later such as <code>bool</code>, <code>optionalText</code> and <code>utcTimeFormlet</code></p>
-
-<p>[^3]: More on Maybe here: <a href="http://learnyouahaskell.com/a-fistful-of-monads#getting-our-feet-wet-with-maybe">http://learnyouahaskell.com/a-fistful-of-monads#getting-our-feet-wet-with-maybe</a></p>
-
-<p>[^4]: OverloadedStrings is a commonly used language extension that makes it easier to write string literals and use them in our application.</p>
+	    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"tweet.username"</span><span class="nt">&gt;</span>Username: <span class="nt">&lt;/label&gt;</span>
+	    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">id=</span><span class="s">"tweet.username"</span> <span class="na">name=</span><span class="s">"tweet.username"</span> <span class="na">value=</span><span class="s">""</span><span class="nt">&gt;</span>
+	    <span class="nt">&lt;br&gt;</span>
+
+	    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"tweet.timestamp"</span><span class="nt">&gt;</span>Timestamp: <span class="nt">&lt;/label&gt;</span>
+	    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"number"</span> <span class="na">min=</span><span class="s">"0"</span> <span class="na">step=</span><span class="s">"1"</span> <span class="na">pattern=</span><span class="s">"\d+"</span> <span class="na">id=</span><span class="s">"tweet.timestamp"</span> <span class="na">name=</span><span class="s">"tweet.timestamp"</span> <span class="na">value=</span><span class="s">""</span><span class="nt">&gt;</span>
+	    <span class="nt">&lt;br&gt;</span>
+
+	    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"tweet.content"</span><span class="nt">&gt;</span>Content: <span class="nt">&lt;/label&gt;</span>
+	    <span class="nt">&lt;textarea</span> <span class="na">id=</span><span class="s">"tweet.content"</span> <span class="na">name=</span><span class="s">"tweet.content"</span><span class="nt">&gt;&lt;/textarea&gt;</span>
+	    <span class="nt">&lt;br&gt;</span>
+
+	    <span class="nt">&lt;input</span> <span class="na">value=</span><span class="s">"Submit"</span> <span class="na">type=</span><span class="s">"submit"</span><span class="nt">&gt;</span>
+	    <span class="nt">&lt;/form&gt;</span>
+	</pre></div>
+
+	<p>You'll notice that the field ids and names are all namespaced by the form name (tweet). We also get a couple things for free, including encodingtype, method, some types and values.</p>
+
+	<p>These values will keep the values that are input if there are errors in other fields and the errors will be displayed at the top of the form.</p>
+
+	<h3>
+	  <a name="the-formhandler-routing-function" class="anchor" href="#the-formhandler-routing-function"><span class="octicon octicon-link"></span></a>The FormHandler Routing Function</h3>
+
+	<p>We can now write our Snap Form Handler:</p>
+
+	<div class="highlight highlight-Haskell"><pre><span class="nf">tweetFormHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
+	    <span class="nf">tweetFormHandler</span> <span class="ow">=</span> <span class="kr">do</span>
+	    <span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="ow">&lt;-</span> <span class="n">runForm</span> <span class="s">"tweet"</span> <span class="n">tweetForm</span>
+	    <span class="kr">case</span> <span class="n">result</span> <span class="kr">of</span>
+	    <span class="kt">Just</span> <span class="n">x</span>  <span class="ow">-&gt;</span> <span class="n">writeText</span> <span class="o">$</span> <span class="kt">T</span><span class="o">.</span><span class="n">pack</span> <span class="o">$</span> <span class="n">show</span> <span class="n">x</span>
+	    <span class="kt">Nothing</span> <span class="ow">-&gt;</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="n">bindDigestiveSplices</span> <span class="n">view</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"tweetform"</span>
+	</pre></div>
+
+	<p>We now need to export <code>tweetFormHandler</code> so we can use it later.</p>
+
+	<div class="highlight highlight-Haskell"><pre><span class="kr">module</span> <span class="nn">Twitter</span>
+	    <span class="p">(</span><span class="kt">Tweet</span>
+	    <span class="p">,</span><span class="nf">tweetFormHandler</span>  <span class="p">)</span> <span class="kr">where</span>
+	</pre></div>
+
+	<p>Remember when we used <code>getForm</code> to test our form in ghci? Well it so happens that Digestive Functors Snap has a function that will automatically choose between <code>getForm</code> and <code>postForm</code> for us based on the type of request. It is called <code>runForm</code>. In addition, runForm takes the form name that we saw in the html before ("tweet"). This name can be any string we want and our forms will automatically be namespaced by it.</p>
+
+	<p>Essentially what's going on here is that if we can parse a <code>Tweet</code> datatype, result is where it will be stored and <code>Just x</code> will match in our case statement. If we can't parse a <code>Tweet</code>, result will be <code>Nothing</code> and the <code>view</code> will be rendered out with our <code>tweetform</code> template. <code>bindDigestiveSplices</code> is what allows us to use the <code>dfInput</code> and other <code>df</code> tags in our html.</p>
+
+	<p>We also need some more imports. I've imported only what we need from Snap.Core and Snap.Snaplet.Heist to make it more obvious where these functions are coming from. In the future, to import the whole modules, you can delete the parentheses and the text inside them.</p>
+
+	<div class="highlight highlight-Haskell"><pre><span class="kr">import</span>           <span class="nn">Snap.Core</span> <span class="p">(</span><span class="nf">writeText</span><span class="p">)</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span> <span class="p">(</span><span class="nf">heistLocal</span><span class="p">,</span> <span class="nf">render</span><span class="p">)</span>
+	    <span class="kr">import</span>           <span class="nn">Application</span>
+	</pre></div>
+
+	<h3>
+	  <a name="final-steps" class="anchor" href="#final-steps"><span class="octicon octicon-link"></span></a>Final Steps</h3>
+
+	<p>Now that we have everything set up in <code>src/Twitter.hs</code> and our template written, let's go into <code>src/Site.hs</code> and create a route. First we'll add Twitter to our list of imports.</p>
+
+	<div class="highlight highlight-Haskell"><pre><span class="kr">import</span>           <span class="nn">Control.Applicative</span>
+	    <span class="kr">import</span>           <span class="nn">Data.ByteString</span> <span class="p">(</span><span class="kt">ByteString</span><span class="p">)</span>
+	    <span class="kr">import</span>           <span class="nn">Data.Maybe</span>
+	    <span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Core</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth.Backends.JsonFile</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Session.Backends.CookieSession</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Util.FileServe</span>
+	    <span class="kr">import</span>           <span class="nn">Heist</span>
+	    <span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Heist.Interpreted</span> <span class="k">as</span> <span class="n">I</span>
+	    <span class="kr">import</span>           <span class="nn">Twitter</span>
+	</pre></div>
+
+	<p>Now we can add our <code>tweetFormHandler</code> to our routes. Since our form is already set up to POST to /tweet, we'll use that as our route:</p>
+
+	<div class="highlight highlight-Haskell"><pre><span class="c1">------------------------------------------------------------------------------</span>
+	    <span class="c1">-- | The application's routes.</span>
+	    <span class="nf">routes</span> <span class="ow">::</span> <span class="p">[(</span><span class="kt">ByteString</span><span class="p">,</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span><span class="p">)]</span>
+	    <span class="nf">routes</span> <span class="ow">=</span> <span class="p">[</span> <span class="p">(</span><span class="s">"/logins"</span><span class="p">,</span>    <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLoginSubmit</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s">"/logout"</span><span class="p">,</span>   <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLogout</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s">"/new_user"</span><span class="p">,</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">handleNewUser</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s">"/tweet"</span><span class="p">,</span> <span class="n">tweetFormHandler</span><span class="p">)</span>
+            <span class="p">,</span> <span class="p">(</span><span class="s">""</span><span class="p">,</span>          <span class="n">serveDirectory</span> <span class="s">"static"</span><span class="p">)</span>
+            <span class="p">]</span>
+	</pre></div>
+
+	<p>That's it. Run <code>cabal install</code> and then we can run <code>df-one</code> to run our app.</p>
+
+	<p>Visit <code>localhost:8000/tweet</code> in a browser to see our form and error handling in action!</p>
+
+	<p>Here is our finalized <code>src/Twitter.hs</code></p>
+
+	<div class="highlight highlight-Haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
+	    <span class="kr">module</span> <span class="nn">Twitter</span>
+	    <span class="p">(</span><span class="kt">Tweet</span>
+	    <span class="p">,</span><span class="nf">tweetFormHandler</span>  <span class="p">)</span> <span class="kr">where</span>
+
+	    <span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
+	    <span class="kr">import</span>           <span class="nn">Text.Digestive</span>
+	    <span class="kr">import</span>           <span class="nn">Text.Digestive.Heist</span>
+	    <span class="kr">import</span>           <span class="nn">Text.Digestive.Snap</span>
+	    <span class="kr">import</span>           <span class="nn">Control.Applicative</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Core</span> <span class="p">(</span><span class="nf">writeText</span><span class="p">)</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
+	    <span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span> <span class="p">(</span><span class="nf">heistLocal</span><span class="p">,</span> <span class="nf">render</span><span class="p">)</span>
+	    <span class="kr">import</span>           <span class="nn">Application</span>
+
+	    <span class="kr">data</span> <span class="kt">Tweet</span> <span class="ow">=</span> <span class="kt">Tweet</span> <span class="p">{</span>
+	    <span class="n">username</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span><span class="p">,</span>
+	    <span class="n">timestamp</span> <span class="ow">::</span> <span class="kt">Int</span><span class="p">,</span>
+	    <span class="n">content</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+
+	    <span class="nf">isNotEmpty</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
+	    <span class="nf">isNotEmpty</span> <span class="ow">=</span> <span class="n">not</span> <span class="o">.</span> <span class="kt">T</span><span class="o">.</span><span class="n">null</span>
+
+	    <span class="nf">userErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">userErrMsg</span> <span class="ow">=</span> <span class="s">"Username can not be empty"</span>
+	    <span class="nf">tsErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">tsErrMsg</span> <span class="ow">=</span> <span class="s">"timestamp must be an Int"</span>
+	    <span class="nf">contentErrMsg</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+	    <span class="nf">contentErrMsg</span> <span class="ow">=</span> <span class="s">"Tweet can not be empty"</span>
+
+	    <span class="nf">tweetForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">Tweet</span>
+	    <span class="nf">tweetForm</span> <span class="ow">=</span> <span class="kt">Tweet</span>
+	    <span class="o">&lt;$&gt;</span> <span class="s">"username"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">userErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
+	    <span class="o">&lt;*&gt;</span> <span class="s">"timestamp"</span> <span class="o">.:</span> <span class="n">stringRead</span> <span class="n">tsErrMsg</span> <span class="kt">Nothing</span>
+	    <span class="o">&lt;*&gt;</span> <span class="s">"content"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">contentErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
+
+	    <span class="nf">tweetFormHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
+	    <span class="nf">tweetFormHandler</span> <span class="ow">=</span> <span class="kr">do</span>
+	    <span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="ow">&lt;-</span> <span class="n">runForm</span> <span class="s">"tweet"</span> <span class="n">tweetForm</span>
+	    <span class="kr">case</span> <span class="n">result</span> <span class="kr">of</span>
+	    <span class="kt">Just</span> <span class="n">x</span>  <span class="ow">-&gt;</span> <span class="n">writeText</span> <span class="o">$</span> <span class="kt">T</span><span class="o">.</span><span class="n">pack</span> <span class="o">$</span> <span class="n">show</span> <span class="n">x</span>
+	    <span class="kt">Nothing</span> <span class="ow">-&gt;</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="n">bindDigestiveSplices</span> <span class="n">view</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"tweetform"</span>
+	</pre></div>
+
+	<p>[^1]: If you don't know what this is, it would be a good idea to look up the difference between <code>ByteString</code>, <code>Text</code> and <code>String</code> at some point.</p>
+
+	<p>[^2]: and a bunch of other functions we will examine later such as <code>bool</code>, <code>optionalText</code> and <code>utcTimeFormlet</code></p>
+
+	<p>[^3]: More on Maybe here: <a href="http://learnyouahaskell.com/a-fistful-of-monads#getting-our-feet-wet-with-maybe">http://learnyouahaskell.com/a-fistful-of-monads#getting-our-feet-wet-with-maybe</a></p>
+
+	<p>[^4]: OverloadedStrings is a commonly used language extension that makes it easier to write string literals and use them in our application.</p>
       </section>
     </div>
 
@@ -490,16 +499,16 @@ snap init
       </footer>
     </div>
 
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-46878058-2");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+      var pageTracker = _gat._getTracker("UA-46878058-2");
+      pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
 
 
   </body>
