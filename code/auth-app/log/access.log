@@ -1,0 +1,2 @@
+127.0.0.1 - - [25/Feb/2014:00:47:54 -0800] "GET / HTTP/1.1" 200 - - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36"
+127.0.0.1 - - [25/Feb/2014:00:47:54 -0800] "GET /screen.css HTTP/1.1" 200 - "http://localhost:8000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36"

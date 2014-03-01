@@ -1,0 +1,114 @@
+[03/Feb/2014:20:17:04 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[03/Feb/2014:20:18:54 -0800] Server.httpServe: SHUTDOWN
+[03/Feb/2014:20:18:54 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:14:57:01 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:14:57:05 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:14:57:05 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:17:15 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:17:49 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:17:49 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:18:28 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:18:54 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:18:54 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:22:06 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:22:24 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:22:24 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:23:18 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:23:28 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:23:28 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:25:48 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:26:12 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:26:12 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:27:29 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:27:40 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:27:40 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:29:11 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:29:43 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:29:43 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:30:54 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:31:05 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:31:05 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:35:10 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:35:23 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:35:23 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:36:48 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:37:17 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:37:17 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:38:50 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:39:05 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:39:05 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:45:11 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:45:25 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:45:25 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:50:14 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:50:20 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:50:20 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:50:48 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:53:14 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:53:14 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:16:54:17 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:16:55:45 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:16:55:45 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:17:00:57 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:17:04:54 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:17:04:54 -0800] Server.httpServe: BACKEND STOPPED
+[04/Feb/2014:17:11:16 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[04/Feb/2014:17:13:30 -0800] Server.httpServe: SHUTDOWN
+[04/Feb/2014:17:13:30 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:18:12:57 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:18:15:41 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:18:15:41 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:18:16:38 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:18:16:39 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:18:16:39 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:18:18:59 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:18:20:08 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:18:20:08 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:19:03:15 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:19:46:36 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:19:46:36 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:20:14:57 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:20:19:32 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:20:19:32 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:22:04:15 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:22:04:27 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:22:04:27 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:22:41:33 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:22:41:44 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:22:41:44 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:22:42:26 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:22:42:36 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:22:42:36 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:22:44:05 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:22:44:10 -0800] During processing of request from 127.0.0.1:55210
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:55210\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: runner\n    contextpath: /\n    URI: /runner\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+name: expected (Choice _ _), but got: (Text "")
+[16/Feb/2014:22:45:14 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:22:45:14 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:23:02:02 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:23:02:05 -0800] During processing of request from 127.0.0.1:55967
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:55967\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: runner\n    contextpath: /\n    URI: /runner\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+name: expected (Choice _ _), but got: (Text "")
+[16/Feb/2014:23:02:12 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:23:02:12 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:23:02:46 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:23:02:49 -0800] During processing of request from 127.0.0.1:55989
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:55989\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: runner\n    contextpath: /\n    URI: /runner\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+isRunner does not exist
+[16/Feb/2014:23:02:53 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:23:02:53 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:23:03:09 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:23:03:23 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:23:03:23 -0800] Server.httpServe: BACKEND STOPPED
+[16/Feb/2014:23:07:33 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[16/Feb/2014:23:08:12 -0800] Server.httpServe: SHUTDOWN
+[16/Feb/2014:23:08:12 -0800] Server.httpServe: BACKEND STOPPED
+[17/Feb/2014:12:22:21 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[17/Feb/2014:12:22:52 -0800] Server.httpServe: SHUTDOWN
+[17/Feb/2014:12:22:52 -0800] Server.httpServe: BACKEND STOPPED

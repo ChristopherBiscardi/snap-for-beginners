@@ -1,0 +1,168 @@
+[26/Feb/2014:18:40:13 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[26/Feb/2014:18:40:14 -0800] Server.httpServe: SHUTDOWN
+[26/Feb/2014:18:40:14 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:16:12:41 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:16:12:59 -0800] During processing of request from 127.0.0.1:56824
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:56824\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: insert/th\n    contextpath: /\n    URI: /insert/th\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+Prelude.undefined
+[27/Feb/2014:16:13:05 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:16:13:05 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:16:14:03 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:16:14:04 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:16:14:04 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:16:14:29 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:16:14:55 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:16:14:55 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:16:19:24 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:16:20:36 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:16:20:36 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:16:24:35 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:16:25:55 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:16:25:55 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:16:26:44 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:16:27:00 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:16:27:00 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:16:28:00 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:16:28:43 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:16:28:43 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:20:34:13 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:20:36:33 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:20:36:33 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:20:38:12 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:20:38:15 -0800] During processing of request from 127.0.0.1:60575
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:60575\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "", sqlExecStatus = FatalError, sqlErrorMsg = "FATAL:  role \"postgres\" does not exist\n", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:20:38:58 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:20:38:58 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:20:51:44 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:20:51:46 -0800] During processing of request from 127.0.0.1:60756
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:60756\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:21:51:20 -0800] During processing of request from 127.0.0.1:61253
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61253\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:21:51:32 -0800] During processing of request from 127.0.0.1:61253
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61253\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:21:56:40 -0800] During processing of request from 127.0.0.1:61266
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61266\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:21:56:44 -0800] During processing of request from 127.0.0.1:61266
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61266\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:21:57:43 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:21:57:43 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:21:57:43 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:21:57:46 -0800] During processing of request from 127.0.0.1:61277
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61277\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:22:31:51 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:22:31:51 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:22:42:05 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:22:42:10 -0800] During processing of request from 127.0.0.1:61444
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61444\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:22:49:13 -0800] During processing of request from 127.0.0.1:61459
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61459\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:22:51:53 -0800] During processing of request from 127.0.0.1:61474
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61474\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:22:57:58 -0800] Server.httpServe: SHUTDOWN
+[27/Feb/2014:22:57:58 -0800] Server.httpServe: BACKEND STOPPED
+[27/Feb/2014:23:33:26 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[27/Feb/2014:23:33:30 -0800] During processing of request from 127.0.0.1:61734
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61734\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:23:34:58 -0800] During processing of request from 127.0.0.1:61745
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61745\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:23:46:17 -0800] During processing of request from 127.0.0.1:61813
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61813\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[27/Feb/2014:23:58:25 -0800] During processing of request from 127.0.0.1:61856
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61856\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:00:05:50 -0800] During processing of request from 127.0.0.1:61877
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61877\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:00:06:57 -0800] During processing of request from 127.0.0.1:61883
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61883\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:00:07:01 -0800] Server.httpServe: SHUTDOWN
+[28/Feb/2014:00:07:01 -0800] Server.httpServe: BACKEND STOPPED
+[28/Feb/2014:00:07:01 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[28/Feb/2014:00:07:04 -0800] During processing of request from 127.0.0.1:61887
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61887\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:00:14:39 -0800] During processing of request from 127.0.0.1:61907
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61907\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:00:19:22 -0800] During processing of request from 127.0.0.1:61927
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61927\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:00:23:06 -0800] During processing of request from 127.0.0.1:61938
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:61938\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:08:20:23 -0800] During processing of request from 127.0.0.1:64583
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:64583\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:08:21:10 -0800] Server.httpServe: SHUTDOWN
+[28/Feb/2014:08:21:10 -0800] Server.httpServe: BACKEND STOPPED
+[28/Feb/2014:09:18:29 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[28/Feb/2014:09:18:30 -0800] During processing of request from 127.0.0.1:65173
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:65173\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:20:08:02 -0800] During processing of request from 127.0.0.1:52061
+request:
+"Request <\n    server-name: localhost\n    remote: 127.0.0.1:52061\n    local: 127.0.0.1:8000\n    Headers:\n      ========================================\n          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36\n Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\n Host: localhost:8000\n Cache-Control: max-age=0\n Accept-Language: en-US,en;q=0.8,fr;q=0.6\n DNT: 1\n Accept-Encoding: gzip,deflate,sdch\n Connection: keep-alive\n      ========================================\n    content-length: Nothing\n    method: GET\n    version: (1,1)\n    cookies:\n      ========================================\n      \n      ========================================\n    pathinfo: select\n    contextpath: /\n    URI: /select\n    params:\n      ========================================\n      \n      ========================================\n>"
+A web handler threw an exception. Details:
+SqlError {sqlState = "42P01", sqlExecStatus = FatalError, sqlErrorMsg = "relation \"names\" does not exist", sqlErrorDetail = "", sqlErrorHint = ""}
+[28/Feb/2014:20:08:43 -0800] Server.httpServe: SHUTDOWN
+[28/Feb/2014:20:08:43 -0800] Server.httpServe: BACKEND STOPPED

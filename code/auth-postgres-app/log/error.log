@@ -1,0 +1,21 @@
+[25/Feb/2014:00:47:48 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[25/Feb/2014:00:47:57 -0800] Server.httpServe: SHUTDOWN
+[25/Feb/2014:00:47:57 -0800] Server.httpServe: BACKEND STOPPED
+[26/Feb/2014:18:11:59 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[26/Feb/2014:18:12:01 -0800] Server.httpServe: SHUTDOWN
+[26/Feb/2014:18:12:01 -0800] Server.httpServe: BACKEND STOPPED
+[26/Feb/2014:18:13:46 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[26/Feb/2014:18:13:47 -0800] Server.httpServe: SHUTDOWN
+[26/Feb/2014:18:13:47 -0800] Server.httpServe: BACKEND STOPPED
+[26/Feb/2014:18:28:46 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[26/Feb/2014:18:28:50 -0800] Server.httpServe: SHUTDOWN
+[26/Feb/2014:18:28:50 -0800] Server.httpServe: BACKEND STOPPED
+[28/Feb/2014:20:24:18 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[28/Feb/2014:20:25:11 -0800] Server.httpServe: SHUTDOWN
+[28/Feb/2014:20:25:11 -0800] Server.httpServe: BACKEND STOPPED
+[28/Feb/2014:21:08:05 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[28/Feb/2014:21:09:06 -0800] Server.httpServe: SHUTDOWN
+[28/Feb/2014:21:09:06 -0800] Server.httpServe: BACKEND STOPPED
+[28/Feb/2014:22:35:17 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[28/Feb/2014:22:35:33 -0800] Server.httpServe: SHUTDOWN
+[28/Feb/2014:22:35:33 -0800] Server.httpServe: BACKEND STOPPED

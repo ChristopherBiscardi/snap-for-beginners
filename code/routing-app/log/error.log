@@ -1,0 +1,30 @@
+[31/Dec/2013:00:16:53 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[31/Dec/2013:00:30:42 -0800] Server.httpServe: SHUTDOWN
+[31/Dec/2013:00:30:42 -0800] Server.httpServe: BACKEND STOPPED
+[03/Jan/2014:18:21:23 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[03/Jan/2014:18:22:15 -0800] Server.httpServe: SHUTDOWN
+[03/Jan/2014:18:22:15 -0800] Server.httpServe: BACKEND STOPPED
+[20/Feb/2014:04:00:17 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[20/Feb/2014:04:00:26 -0800] Server.httpServe: SHUTDOWN
+[20/Feb/2014:04:00:26 -0800] Server.httpServe: BACKEND STOPPED
+[20/Feb/2014:04:08:17 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[20/Feb/2014:04:08:35 -0800] Server.httpServe: SHUTDOWN
+[20/Feb/2014:04:08:35 -0800] Server.httpServe: BACKEND STOPPED
+[20/Feb/2014:04:09:13 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[20/Feb/2014:04:13:20 -0800] Server.httpServe: SHUTDOWN
+[20/Feb/2014:04:13:20 -0800] Server.httpServe: BACKEND STOPPED
+[20/Feb/2014:05:10:33 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[20/Feb/2014:05:13:13 -0800] Server.httpServe: SHUTDOWN
+[20/Feb/2014:05:13:13 -0800] Server.httpServe: BACKEND STOPPED
+[20/Feb/2014:05:31:40 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[20/Feb/2014:05:51:45 -0800] Server.httpServe: SHUTDOWN
+[20/Feb/2014:05:51:45 -0800] Server.httpServe: BACKEND STOPPED
+[23/Feb/2014:00:07:20 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[23/Feb/2014:00:07:27 -0800] Server.httpServe: SHUTDOWN
+[23/Feb/2014:00:07:27 -0800] Server.httpServe: BACKEND STOPPED
+[23/Feb/2014:01:07:50 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[23/Feb/2014:01:08:05 -0800] Server.httpServe: SHUTDOWN
+[23/Feb/2014:01:08:05 -0800] Server.httpServe: BACKEND STOPPED
+[23/Feb/2014:10:16:24 -0800] Server.httpServe: START, binding to [http://0.0.0.0:8000/]
+[23/Feb/2014:10:16:36 -0800] Server.httpServe: SHUTDOWN
+[23/Feb/2014:10:16:36 -0800] Server.httpServe: BACKEND STOPPED
