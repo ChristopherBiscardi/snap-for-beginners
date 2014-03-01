@@ -42,9 +42,8 @@ be going into that in this book but you can read more [here][web]
 
 ## Where to Get Help
 
-There are a few places to get help or submit issues. This book is availible in
-source form on [github][book-github] for issues. Check out the
-[discussions][forum] of the book and topics. Also useful are the official snap
+There are a few places to get help or submit issues. This book is available in
+source form on [github][book-github] for issues. Also useful are the official snap
 [website][snap] and irc channel (#snapframework).
 
 ## Install Haskell
@@ -133,8 +132,7 @@ cabal install snap
 [hsplat]: http://www.haskell.org/platform/
 [ghc]: http://www.haskell.org/ghc/download_ghc_7_6_3
 [snap]: http://snapframework.com/
-[forum]: TODO
-[book-github]: TODO
+[book-github]: https://github.com/ChristopherBiscardi/snap-for-beginners/tree/master
 [vagrant-downloads]: http://www.vagrantup.com/downloads
 [vbox]: https://www.virtualbox.org/wiki/Downloads
 [vbguest]: https://github.com/dotless-de/vagrant-vbguest
