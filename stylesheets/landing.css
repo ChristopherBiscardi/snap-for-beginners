@@ -58,3 +58,6 @@ h2 span.highlight {
 dl {
   color: whitesmoke;
 }
+button.btn {
+  background-color: #007fff;
+}
