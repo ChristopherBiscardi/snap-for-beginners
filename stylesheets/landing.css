@@ -1,0 +1,60 @@
+body {
+    background: #002953;
+}
+
+h2, h3, h4, h5, h6 {
+    font-family: "Six Caps", Impact, Charcoal, sans-serif;
+    color: #333;
+}
+
+h2 span.highlight {
+    color: #007FFF;
+    background: none;
+}
+
+#main_content_wrap, #future {
+    background:whitesmoke;
+    border-bottom: 1px solid whitesmoke;
+}
+
+#future h2 {
+  font-size: 100px;
+}
+
+#dev-speed, #dev-speed h2, #df, #df h2{
+    color:whitesmoke;
+}
+
+#df h2 {
+  font-size: 110px;
+}
+
+#dev-speed h2 {
+    margin-top: 6px;
+    line-height: 0.9;
+    text-shadow: 1px 1px black;
+}
+#dev-speed h2.one {
+    word-spacing: 0px;
+    letter-spacing: 0px;
+    font-size: 94.097px;
+}
+#dev-speed h2.two {
+    word-spacing: 0px;
+    font-size: 183.315px;
+    letter-spacing: 0.133px;
+}
+
+#dev-speed h2.three {
+    word-spacing: 0px;
+    letter-spacing: 0px;
+    font-size: 171.072px;
+}
+
+#main_content_wrap h2 {
+    font-size: 110px;
+}
+
+dl {
+  color: whitesmoke;
+}
