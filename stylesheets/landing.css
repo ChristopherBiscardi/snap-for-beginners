@@ -20,7 +20,9 @@ h2 span.highlight {
 #future h2 {
   font-size: 100px;
 }
-
+#future h3 {
+  font-size: 50px;
+}
 #dev-speed, #dev-speed h2, #df, #df h2{
     color:whitesmoke;
 }
