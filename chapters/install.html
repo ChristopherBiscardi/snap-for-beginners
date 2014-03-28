@@ -18,6 +18,7 @@
       <a id="forkme_banner" href="https://gumroad.com/l/qWMnO">I Want This (Order)</a>
 
       <h1 id="project_title">Snap for Beginners</h1>
+      <h2 id="project_tagline">Sample Chapter: Digestive Functors (Form Processing)</h2>
 
     </header>
   </div>
@@ -25,89 +26,89 @@
   <!-- MAIN CONTENT -->
   <div id="main_content_wrap" class="outer">
     <section id="main_content" class="inner">
-<!--       <ul>
+      <ul>
         <li><a href="#building-a-digestive-functors-flow">Building a Digestive Functors Flow</a></li>
         <li><a href="#define-a-new-datatype-tweet">Define a new Datatype: Tweet</a></li>
         <li><a href="#creating-the-form">Creating the Form</a></li>
         <li><a href="#building-the-heist-templates">Building The Heist Templates</a></li>
         <li><a href="#the-formhandler-routing-function">The FormHandler Routing Function</a></li>
         <li><a href="#final-steps">Final Steps</a></li>
-      </ul> -->
-      <h1 id="getting-started">Getting Started</h1>
-      <p>This chapter will be about getting started with Snap. We will begin by giving some backround and progress through a working scaffolding app. A passing familiarity with Haskell development and the command line is assumed, but a brief rundown is given for those that do not have the background.</p>
-      <h2 id="how-to-read-this-book">How to Read this Book</h2>
-      <p>This book strives to place example code in your hands rather than lead you through a project. I suggest that you pick an idea such as a simple blog, where you input some data in a form and can render posts at different urls. Then you can use the code examples in the book to build up your project little by little.</p>
-      <p>The chapters may depend on each other (The Authorization Snaplet references the PostgreSQL chapter for example) and you are encouraged to bounce around while reading the book.</p>
-      <h2 id="what-snap-is">What Snap is</h2>
-      <p>Snap is a web framework for the Haskell language that is most similar to Express or Sinatra. As contrast, Yesod (Another Haskell framework), can be viewed as a more Rails-like framework.</p>
-      <p>From SnapFramework.com:</p>
-      <p>Snap is a simple web development framework for unix systems, written in the Haskell programming language. Snap has a high level of test coverage and is well-documented. Features include:</p>
-      <ul>
-        <li>A fast HTTP server library</li>
-        <li>A sensible and clean monad for web programming</li>
-        <li>An HTML-based templating system for generating pages</li>
       </ul>
-      <p>Snap also contains <code>snaplets</code>, which are modular units of stateful code that are usable between applications. For example, there are snaplets for <a href="https://github.com/snapframework/snap/blob/master/src/Snap/Snaplet/Heist.hs" title="Heist">heist</a>, <a href="https://github.com/snapframework/snap/blob/master/src/Snap/Snaplet/Auth.hs">authentication</a> and <a href="https://github.com/mightybyte/snaplet-postgresql-simple/">Postgres</a>. Snaplets also come with some nice extras such as a unified configuration format.</p>
-      <p>One of the nice things about the Haskell web framework landscape is that many of the components are replaceable with components from other projects. We will not be going into that in this book but you can read more <a href="http://www.haskell.org/haskellwiki/Web/Deploy)">here</a></p>
-      <h2 id="where-to-get-help">Where to Get Help</h2>
-      <p>There are a few places to get help or submit issues. This book is available in source form on <a href="https://github.com/ChristopherBiscardi/snap-for-beginners/tree/master">github</a> for issues. Also useful are the official snap <a href="http://snapframework.com/">website</a> and irc channel (#snapframework).</p>
-      <h2 id="install-haskell">Install Haskell</h2>
-      <p>By far the easiest way to install Haskell is the Haskell Platform, which is availible from <a href="http://www.haskell.org/platform/">http://www.haskell.org/platform/</a>. Some package managers also include haskell-platform as well, including homebrew and apt-get. This book is written using the 2013.2.0.0 Haskell Platform, which includes GHC 7.6.3.</p>
-      <h2 id="a-note-on-sandboxes">A Note on Sandboxes</h2>
-      <p>It is a good idea to separate Haskell projects from each other if there are multiple Haskell projects on a machine. This makes it easier to manage dependencies and enables a simpler workflow.</p>
-      <p>There are a few options for creating environments, we will go over <code>cabal sandbox</code>.</p>
-      <p>After installing Haskell Platform, we need to upgrade cabal to ~v1.18. Run:</p>
-      <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> update
-        <span class="kw">cabal</span> install cabal-install</code></pre>
-        <p>Then you will see something like this at the end:</p>
-        <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">Installing</span> executable(s) <span class="kw">in</span>
-          <span class="kw">/Library/Haskell/ghc-7.6.3/lib/cabal-install-1.18.0.2/bin</span>
-          <span class="kw">Installed</span> cabal-install-1.18.0.2
-          <span class="kw">Updating</span> documentation index /Library/Haskell/doc/index.html</code></pre>
-          <p>According to the code we just ran, the updated <code>cabal</code> is in <code>/Library/Haskell/ghc-7.6.3/lib/cabal-install-1.18.0.2/bin</code> so we need to add that to our path:</p>
-          <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">export</span> <span class="ot">PATH=</span><span class="st">&quot;/Library/Haskell/ghc-7.6.3/lib/cabal-install-1.18.0.2/bin:</span><span class="ot">$PATH</span><span class="st">&quot;</span></code></pre>
-          <p>Note that this path will be different based on your system.</p>
-          <h3 id="cabal-sandbox">cabal sandbox</h3>
-          <p>Now that we have a recent cabal version, we can use <code>cabal sandbox</code>. For a deeper understanding of <code>cabal sandbox</code>, refer to this <a href="http://coldwa.st/e/blog/2013-08-20-Cabal-sandbox.html">post</a>.</p>
-          <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> sandbox init</code></pre>
-          <p>will create a directory and a file in the current directory that will hold packages and other settings for the sandbox.</p>
-          <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">.cabal-sandbox</span>
-            <span class="kw">cabal.sandbox.config</span></code></pre>
-            <p>Now, when we run <code>cabal install</code> for this project, the executable will be in <code>.cabal-sandbox/bin/</code>. For example, if we are in <code>code/heist-app</code> (one of the sample projects that comes with the book) and we created a sandbox in <code>heist-app</code>, we can install and run the executable without affecting our other projects as such:</p>
-            <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cd</span> code/heist-app
-              <span class="kw">cabal</span> sandbox init
-              <span class="kw">cabal</span> install
-              <span class="kw">.cabal-sandbox/bin/heist-app</span></code></pre>
-              <p>which will result in</p>
-              <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">Initializing</span> app @ /
-                <span class="kw">Initializing</span> heist @ /
-                <span class="kw">...loaded</span> 7 templates from /heist-app/snaplets/heist/templates
-                <span class="kw">Initializing</span> CookieSession @ /sess
-                <span class="kw">Initializing</span> JsonFileAuthManager @ /auth
+      <h1 id="getting-started">Getting Started</h1>
+<p>This chapter will be about getting started with Snap. We will begin by giving some backround and progress through a working scaffolding app. A passing familiarity with Haskell development and the command line is assumed, but a brief rundown is given for those that do not have the background.</p>
+<h2 id="how-to-read-this-book">How to Read this Book</h2>
+<p>This book strives to place example code in your hands rather than lead you through a project. I suggest that you pick an idea such as a simple blog, where you input some data in a form and can render posts at different urls. Then you can use the code examples in the book to build up your project little by little.</p>
+<p>The chapters may depend on each other (The Authorization Snaplet references the PostgreSQL chapter for example) and you are encouraged to bounce around while reading the book.</p>
+<h2 id="what-snap-is">What Snap is</h2>
+<p>Snap is a web framework for the Haskell language that is most similar to Express or Sinatra. As contrast, Yesod (Another Haskell framework), can be viewed as a more Rails-like framework.</p>
+<p>From SnapFramework.com:</p>
+<p>Snap is a simple web development framework for unix systems, written in the Haskell programming language. Snap has a high level of test coverage and is well-documented. Features include:</p>
+<ul>
+<li>A fast HTTP server library</li>
+<li>A sensible and clean monad for web programming</li>
+<li>An HTML-based templating system for generating pages</li>
+</ul>
+<p>Snap also contains <code>snaplets</code>, which are modular units of stateful code that are usable between applications. For example, there are snaplets for <a href="https://github.com/snapframework/snap/blob/master/src/Snap/Snaplet/Heist.hs" title="Heist">heist</a>, <a href="https://github.com/snapframework/snap/blob/master/src/Snap/Snaplet/Auth.hs">authentication</a> and <a href="https://github.com/mightybyte/snaplet-postgresql-simple/">Postgres</a>. Snaplets also come with some nice extras such as a unified configuration format.</p>
+<p>One of the nice things about the Haskell web framework landscape is that many of the components are replaceable with components from other projects. We will not be going into that in this book but you can read more <a href="http://www.haskell.org/haskellwiki/Web/Deploy)">here</a></p>
+<h2 id="where-to-get-help">Where to Get Help</h2>
+<p>There are a few places to get help or submit issues. This book is available in source form on <a href="https://github.com/ChristopherBiscardi/snap-for-beginners/tree/master">github</a> for issues. Also useful are the official snap <a href="http://snapframework.com/">website</a> and irc channel (#snapframework).</p>
+<h2 id="install-haskell">Install Haskell</h2>
+<p>By far the easiest way to install Haskell is the Haskell Platform, which is availible from <a href="http://www.haskell.org/platform/">http://www.haskell.org/platform/</a>. Some package managers also include haskell-platform as well, including homebrew and apt-get. This book is written using the 2013.2.0.0 Haskell Platform, which includes GHC 7.6.3.</p>
+<h2 id="a-note-on-sandboxes">A Note on Sandboxes</h2>
+<p>It is a good idea to separate Haskell projects from each other if there are multiple Haskell projects on a machine. This makes it easier to manage dependencies and enables a simpler workflow.</p>
+<p>There are a few options for creating environments, we will go over <code>cabal sandbox</code>.</p>
+<p>After installing Haskell Platform, we need to upgrade cabal to ~v1.18. Run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> update
+<span class="kw">cabal</span> install cabal-install</code></pre>
+<p>Then you will see something like this at the end:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">Installing</span> executable(s) <span class="kw">in</span>
+<span class="kw">/Library/Haskell/ghc-7.6.3/lib/cabal-install-1.18.0.2/bin</span>
+<span class="kw">Installed</span> cabal-install-1.18.0.2
+<span class="kw">Updating</span> documentation index /Library/Haskell/doc/index.html</code></pre>
+<p>According to the code we just ran, the updated <code>cabal</code> is in <code>/Library/Haskell/ghc-7.6.3/lib/cabal-install-1.18.0.2/bin</code> so we need to add that to our path:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">export</span> <span class="ot">PATH=</span><span class="st">&quot;/Library/Haskell/ghc-7.6.3/lib/cabal-install-1.18.0.2/bin:</span><span class="ot">$PATH</span><span class="st">&quot;</span></code></pre>
+<p>Note that this path will be different based on your system.</p>
+<h3 id="cabal-sandbox">cabal sandbox</h3>
+<p>Now that we have a recent cabal version, we can use <code>cabal sandbox</code>. For a deeper understanding of <code>cabal sandbox</code>, refer to this <a href="http://coldwa.st/e/blog/2013-08-20-Cabal-sandbox.html">post</a>.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> sandbox init</code></pre>
+<p>will create a directory and a file in the current directory that will hold packages and other settings for the sandbox.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">.cabal-sandbox</span>
+<span class="kw">cabal.sandbox.config</span></code></pre>
+<p>Now, when we run <code>cabal install</code> for this project, the executable will be in <code>.cabal-sandbox/bin/</code>. For example, if we are in <code>code/heist-app</code> (one of the sample projects that comes with the book) and we created a sandbox in <code>heist-app</code>, we can install and run the executable without affecting our other projects as such:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cd</span> code/heist-app
+<span class="kw">cabal</span> sandbox init
+<span class="kw">cabal</span> install
+<span class="kw">.cabal-sandbox/bin/heist-app</span></code></pre>
+<p>which will result in</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">Initializing</span> app @ /
+<span class="kw">Initializing</span> heist @ /
+<span class="kw">...loaded</span> 7 templates from /heist-app/snaplets/heist/templates
+<span class="kw">Initializing</span> CookieSession @ /sess
+<span class="kw">Initializing</span> JsonFileAuthManager @ /auth
 
-                <span class="kw">Listening</span> on http://0.0.0.0:8000/</code></pre>
-                <h2 id="install-snap">Install Snap</h2>
-                <p>Installing Snap is easy because of cabal, Haskell's package manager. Just run:</p>
-                <pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> install snap</code></pre>
+<span class="kw">Listening</span> on http://0.0.0.0:8000/</code></pre>
+<h2 id="install-snap">Install Snap</h2>
+<p>Installing Snap is easy because of cabal, Haskell's package manager. Just run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> install snap</code></pre>
 
-                <!-- FOOTER  -->
-                <div id="footer_wrap" class="outer">
-                  <footer class="inner">
-                    <p class="copyright">Snap for Beginners maintained by <a href="https://github.com/ChristopherBiscardi">ChristopherBiscardi</a></p>
-                  </footer>
-                </div>
+      <!-- FOOTER  -->
+      <div id="footer_wrap" class="outer">
+        <footer class="inner">
+          <p class="copyright">Snap for Beginners maintained by <a href="https://github.com/ChristopherBiscardi">ChristopherBiscardi</a></p>
+        </footer>
+      </div>
 
-                <script type="text/javascript">
-                  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-                  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-                </script>
-                <script type="text/javascript">
-                  try {
-                    var pageTracker = _gat._getTracker("UA-46878058-2");
-                    pageTracker._trackPageview();
-                  } catch(err) {}
-                </script>
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("UA-46878058-2");
+          pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
 
 
-              </body>
-              </html>
+    </body>
+    </html>
