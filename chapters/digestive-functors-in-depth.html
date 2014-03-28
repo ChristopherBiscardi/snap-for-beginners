@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <meta name="description" content="Snap for Beginners : Sample Chapter: Digestive Functors (Form Processing)" />
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/stylesheet.css">
+
+  <title>Snap for Beginners</title>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div id="header_wrap" class="outer">
+    <header class="inner">
+      <a id="forkme_banner" href="https://gumroad.com/l/qWMnO">I Want This (Order)</a>
+
+      <h1 id="project_title">Snap for Beginners</h1>
+      <h2 id="project_tagline">Sample Chapter: Digestive Functors (Form Processing)</h2>
+
+    </header>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main_content_wrap" class="outer">
+    <section id="main_content" class="inner">
+<article class="markdown-body entry-content">
+        <h2>
+<a name="more-samples" class="anchor" href="#more-samples"><span class="octicon octicon-link"></span></a>More Samples</h2>
+
+<p>The code for these samples is in <code>code/df-samples</code>. The app in df-samples is a copy of the Twitter app, with various forms, routes and templates added.</p>
+
+<h2>
+<a name="adding-splices" class="anchor" href="#adding-splices"><span class="octicon octicon-link"></span></a>Adding Splices</h2>
+
+<h3>
+<a name="digestivesplices" class="anchor" href="#digestivesplices"><span class="octicon octicon-link"></span></a>digestiveSplices</h3>
+
+<p><code>digestiveSplices</code> are the splices that comes from <code>digestive-functors-heist</code>. It takes a View T.Text (for example the one in <code>tweetFormHandler</code> in <code>code/df-one/src/Twitter.hs</code>)</p>
+
+<h3>
+<a name="binddigestivesplices" class="anchor" href="#binddigestivesplices"><span class="octicon octicon-link"></span></a>bindDigestiveSplices</h3>
+
+<p><code>bindDigestiveSplices</code> is used very similar to heist's <code>bindSplices</code>. As seen in <code>code/df-one/src/Twitter.hs</code> from earlier in this chapter:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">tweetFormHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
+<span class="nf">tweetFormHandler</span> <span class="ow">=</span> <span class="kr">do</span>
+  <span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="ow">&lt;-</span> <span class="n">runForm</span> <span class="s">"tweet"</span> <span class="n">tweetForm</span>
+  <span class="kr">case</span> <span class="n">result</span> <span class="kr">of</span>
+    <span class="kt">Just</span> <span class="n">x</span>  <span class="ow">-&gt;</span> <span class="n">writeText</span> <span class="o">$</span> <span class="kt">T</span><span class="o">.</span><span class="n">pack</span> <span class="o">$</span> <span class="n">show</span> <span class="n">x</span>
+    <span class="kt">Nothing</span> <span class="ow">-&gt;</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="n">bindDigestiveSplices</span> <span class="n">view</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"tweetform"</span>
+</pre></div>
+
+<h3>
+<a name="digestivesplices-and-custom-splices" class="anchor" href="#digestivesplices-and-custom-splices"><span class="octicon octicon-link"></span></a>digestiveSplices and custom splices</h3>
+
+<p><code>bindDigestiveSplices</code> returns a <code>heistState</code>, just like <code>bindSplices</code> does. This means that if we need to add custom splices <em>and</em> <code>digestiveSplices</code> to render a template, we can do it like this:</p>
+
+<p>Provided we have these imports:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Heist.Interpreted</span> <span class="k">as</span> <span class="n">I</span>
+<span class="kr">import</span> <span class="nn">Snap.Snaplets.Heist</span>
+</pre></div>
+
+<p>we can change this from <code>code/df-one/src/Twitter.hs</code></p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">heistLocal</span> <span class="p">(</span><span class="n">bindDigestiveSplices</span> <span class="n">view</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"tweetform"</span>
+</pre></div>
+
+<p>to this</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">heistLocal</span> <span class="n">bSplices</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"tweetform"</span>
+  <span class="kr">where</span> <span class="n">mysplices</span> <span class="ow">=</span> <span class="p">[(</span><span class="s">"thing"</span><span class="p">,</span> <span class="kt">I</span><span class="o">.</span><span class="n">textSplice</span> <span class="s">"what"</span><span class="p">)</span>
+                    <span class="p">,(</span><span class="s">"otherthing"</span><span class="p">,</span> <span class="kt">I</span><span class="o">.</span><span class="n">textSplice</span> <span class="s">"other"</span><span class="p">)]</span>
+        <span class="n">bSplices</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">I</span><span class="o">.</span><span class="n">bindSplices</span> <span class="n">mysplices</span> <span class="o">.</span> <span class="n">bindDigestiveSplices</span> <span class="n">view</span><span class="p">)</span>
+</pre></div>
+
+<p>The key part is replacing <code>bindDigestiveSplices view</code> with:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kt">I</span><span class="o">.</span><span class="n">bindSplices</span> <span class="n">mysplices</span> <span class="o">.</span> <span class="n">bindDigestiveSplices</span> <span class="n">view</span>
+</pre></div>
+
+<p>where <code>mysplices</code> is a list of simple <code>textSplice</code>s.</p>
+
+<h2>
+<a name="forms" class="anchor" href="#forms"><span class="octicon octicon-link"></span></a>Forms</h2>
+
+<p>All of these return <code>Formlet</code>s that can be used when creating forms.</p>
+
+<h3>
+<a name="text" class="anchor" href="#text"><span class="octicon octicon-link"></span></a>text</h3>
+
+<p><code>text</code> defines a text form and takes an optional default value (<code>Just "some text"</code> or <code>Nothing</code>)</p>
+
+<div class="highlight highlight-haskell"><pre><span class="s">"username"</span> <span class="o">.:</span> <span class="n">text</span> <span class="kt">Nothing</span>
+</pre></div>
+
+<p>and as seen in <code>code/df-one/src/Twitter.hs</code>:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="s">"username"</span> <span class="o">.:</span> <span class="n">check</span> <span class="n">userErrMsg</span> <span class="n">isNotEmpty</span> <span class="p">(</span><span class="n">text</span> <span class="kt">Nothing</span><span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="string" class="anchor" href="#string"><span class="octicon octicon-link"></span></a>string</h3>
+
+<p>Same as <code>text</code>, but works on the <code>String</code> type.</p>
+
+<h3>
+<a name="stringread" class="anchor" href="#stringread"><span class="octicon octicon-link"></span></a>stringRead</h3>
+
+<p><code>stringRead</code> is used for parseable and serializable values. In our Tweet example, we used <code>Int</code>. We can check the documentation for <a href="http://hackage.haskell.org/package/base-4.6.0.1/docs/Prelude.html#t:Int">Int</a> to see that in the <code>Instances</code> list there are instances for <code>Read Int</code> and <code>Show Int</code>. <code>Read</code> and <code>Show</code> are the instances that make a value "parseable and serializable". </p>
+
+<p>It takes an error message and possibly a default value (either <code>Just 5</code> or <code>Nothing</code> in our case).</p>
+
+<div class="highlight highlight-haskell"><pre><span class="s">"timestamp"</span> <span class="o">.:</span> <span class="n">stringRead</span> <span class="s">"My Error Message"</span> <span class="kt">Nothing</span>
+</pre></div>
+
+<h3>
+<a name="choice" class="anchor" href="#choice"><span class="octicon octicon-link"></span></a>choice</h3>
+
+<p>A <code>choice</code> form can be used to restrict options, such as with a select tag. It takes a list of value, identifier pairs and an optional default value. From <code>code/df-samples/Twitter.hs</code>:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="c1">-- Data Type with two possible values.</span>
+<span class="kr">data</span> <span class="kt">Thing</span> <span class="ow">=</span> <span class="kt">ThingOne</span> <span class="o">|</span> <span class="kt">ThingTwo</span>
+           <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">,</span> <span class="kt">Eq</span><span class="p">)</span>
+
+<span class="c1">-- Form for data type using choice. "t1" and "t2" </span>
+<span class="c1">--  will render in the dfInputSelect box</span>
+<span class="nf">thingForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">Thing</span>
+<span class="nf">thingForm</span> <span class="ow">=</span> <span class="s">"thething"</span>  <span class="o">.:</span> <span class="n">choice</span> <span class="p">[(</span><span class="kt">ThingOne</span><span class="p">,</span> <span class="s">"t1"</span><span class="p">),</span>
+                                   <span class="p">(</span><span class="kt">ThingTwo</span><span class="p">,</span> <span class="s">"t2"</span><span class="p">)]</span> <span class="kt">Nothing</span>
+</pre></div>
+
+<p>Showing the flexibility of Digestive Functors, we have two template choices set up to render our choices. The first is at <code>localhost:8000/thing</code>, which renders a select box, the second is at <code>localhost:8000/thingradio</code>, which renders a set of radio buttons. Here are the relevant parts of both templates:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfLabel</span> <span class="na">ref=</span><span class="s">"thething"</span><span class="nt">&gt;</span>The Thing: <span class="nt">&lt;/dfLabel&gt;</span>
+<span class="nt">&lt;dfInputSelect</span> <span class="na">ref=</span><span class="s">"thething"</span> <span class="nt">/&gt;</span>
+</pre></div>
+
+<p>and</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfLabel</span> <span class="na">ref=</span><span class="s">"thething"</span><span class="nt">&gt;</span>The Thing: <span class="nt">&lt;/dfLabel&gt;</span>
+<span class="nt">&lt;dfInputRadio</span> <span class="na">ref=</span><span class="s">"thething"</span> <span class="nt">/&gt;</span>
+</pre></div>
+
+<h3>
+<a name="bool" class="anchor" href="#bool"><span class="octicon octicon-link"></span></a>bool</h3>
+
+<p><code>bool</code> is for Boolean values, like true and false and of course, takes an optional default value (Such as <code>Just True</code> or <code>Nothing</code>).</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">data</span> <span class="kt">Runner</span> <span class="ow">=</span> <span class="kt">Runner</span> <span class="p">{</span>
+  <span class="n">isRunner</span> <span class="ow">::</span> <span class="kt">Bool</span><span class="p">,</span>
+  <span class="n">name</span> <span class="ow">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+  <span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+
+<span class="nf">runnerForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">Runner</span>
+<span class="nf">runnerForm</span> <span class="ow">=</span> <span class="kt">Runner</span>
+  <span class="o">&lt;$&gt;</span> <span class="s">"isrunner"</span> <span class="o">.:</span> <span class="n">bool</span> <span class="kt">Nothing</span>
+  <span class="o">&lt;*&gt;</span> <span class="s">"name"</span> <span class="o">.:</span> <span class="n">text</span> <span class="kt">Nothing</span>
+</pre></div>
+
+<p>and the relevant templates in which we use a checkbox:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfLabel</span> <span class="na">ref=</span><span class="s">"name"</span><span class="nt">&gt;</span>Name: <span class="nt">&lt;/dfLabel&gt;</span>
+<span class="nt">&lt;dfInputText</span> <span class="na">ref=</span><span class="s">"name"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;br&gt;</span>
+
+<span class="nt">&lt;dfLabel</span> <span class="na">ref=</span><span class="s">"isrunner"</span><span class="nt">&gt;</span>Are you a Runner? <span class="nt">&lt;/dfLabel&gt;</span>
+<span class="nt">&lt;dfInputCheckbox</span> <span class="na">ref=</span><span class="s">"isrunner"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;br&gt;</span>
+</pre></div>
+
+<h2>
+<a name="testing-optional-values" class="anchor" href="#testing-optional-values"><span class="octicon octicon-link"></span></a>Testing Optional Values</h2>
+
+<h3>
+<a name="optionaltext" class="anchor" href="#optionaltext"><span class="octicon octicon-link"></span></a>optionalText</h3>
+
+<p><code>optionalText</code> functions the same way as <code>text</code> with one difference; It accepts <code>Maybe</code> values (that is, it's for fields that don't need to be filled out).</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">data</span> <span class="kt">MRunner</span> <span class="ow">=</span> <span class="kt">MRunner</span> <span class="p">{</span>
+  <span class="n">isMRunner</span> <span class="ow">::</span> <span class="kt">Bool</span><span class="p">,</span>
+  <span class="n">mName</span> <span class="ow">::</span> <span class="kt">Maybe</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+  <span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+
+<span class="nf">mRunnerForm</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Form</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="kt">MRunner</span>
+<span class="nf">mRunnerForm</span> <span class="ow">=</span> <span class="kt">MRunner</span>
+  <span class="o">&lt;$&gt;</span> <span class="s">"isrunner"</span> <span class="o">.:</span> <span class="n">bool</span> <span class="kt">Nothing</span>
+  <span class="o">&lt;*&gt;</span> <span class="s">"name"</span> <span class="o">.:</span> <span class="n">optionalText</span> <span class="kt">Nothing</span>
+</pre></div>
+
+<p>This form can use the same template as a <code>text</code> field. For example, here's the template from the <code>bool</code> example which had a <code>text</code> name:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfLabel</span> <span class="na">ref=</span><span class="s">"name"</span><span class="nt">&gt;</span>Name: <span class="nt">&lt;/dfLabel&gt;</span>
+<span class="nt">&lt;dfInputText</span> <span class="na">ref=</span><span class="s">"name"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;br&gt;</span>
+
+<span class="nt">&lt;dfLabel</span> <span class="na">ref=</span><span class="s">"isrunner"</span><span class="nt">&gt;</span>Are you a Runner? <span class="nt">&lt;/dfLabel&gt;</span>
+<span class="nt">&lt;dfInputCheckbox</span> <span class="na">ref=</span><span class="s">"isrunner"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;br&gt;</span>
+</pre></div>
+
+<p>Two potential successful form responses:</p>
+
+<div class="highlight highlight-JavaScript"><pre><span class="nx">MRunner</span> <span class="p">{</span><span class="nx">isMRunner</span> <span class="o">=</span> <span class="nx">True</span><span class="p">,</span> <span class="nx">mName</span> <span class="o">=</span> <span class="nx">Just</span> <span class="s2">"Chris"</span><span class="p">}</span>
+<span class="nx">MRunner</span> <span class="p">{</span><span class="nx">isMRunner</span> <span class="o">=</span> <span class="nx">True</span><span class="p">,</span> <span class="nx">mName</span> <span class="o">=</span> <span class="nx">Nothing</span><span class="p">}</span>
+</pre></div>
+
+<h2>
+<a name="digestive-splices" class="anchor" href="#digestive-splices"><span class="octicon octicon-link"></span></a>Digestive Splices</h2>
+
+<p>The Digestive Splices are what are used to construct templates. If you are familiar with html input tags already, most of them are named the same way as the html tag they generate. Some examples are given here but a complete list can be found in the Heist <a href="http://hackage.haskell.org/package/digestive-functors-heist-0.8.4.1/docs/Text-Digestive-Heist.html#g:2">docs</a> on Hackage.</p>
+
+<h3>
+<a name="dfinput" class="anchor" href="#dfinput"><span class="octicon octicon-link"></span></a>dfInput</h3>
+
+<p>Generates an <code>&lt;input&gt;</code> tag with the desired type.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfInput</span> <span class="na">type=</span><span class="s">"date"</span> <span class="na">ref=</span><span class="s">"date"</span> <span class="nt">/&gt;</span>
+</pre></div>
+
+<h3>
+<a name="dfinputtext" class="anchor" href="#dfinputtext"><span class="octicon octicon-link"></span></a>dfInputText</h3>
+
+<p>This is how most of the other input tags are used. Define a <code>ref</code> attribute so that we can access it in our form validation. This ref will be translated to a namespaced equivalent (Something like <code>myform.name</code> in this example).</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfInputText</span> <span class="na">ref=</span><span class="s">"username"</span> <span class="nt">/&gt;</span>
+</pre></div>
+
+<p>becomes</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">id=</span><span class="s">"tweet.username"</span> <span class="na">name=</span><span class="s">"tweet.username"</span> <span class="na">value=</span><span class="s">""</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h4>
+<a name="a-more-complicated-example" class="anchor" href="#a-more-complicated-example"><span class="octicon octicon-link"></span></a>A More Complicated Example</h4>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfInput</span> <span class="na">ref=</span><span class="s">"timestamp"</span> <span class="na">type=</span><span class="s">"number"</span> <span class="na">min=</span><span class="s">"0"</span> <span class="na">step=</span><span class="s">"1"</span> <span class="na">pattern=</span><span class="s">"\d+"</span> <span class="nt">/&gt;</span>
+</pre></div>
+
+<p>becomes</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"number"</span> <span class="na">min=</span><span class="s">"0"</span> <span class="na">step=</span><span class="s">"1"</span>
+ <span class="na">pattern=</span><span class="s">"\d+"</span> <span class="na">id=</span><span class="s">"tweet.timestamp"</span>
+ <span class="na">name=</span><span class="s">"tweet.timestamp"</span> <span class="na">value=</span><span class="s">""</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h3>
+<a name="similar-splices" class="anchor" href="#similar-splices"><span class="octicon octicon-link"></span></a>Similar Splices</h3>
+
+<ul>
+<li>dfInputTextArea</li>
+<li>dfInputPassword</li>
+<li>dfInputHidden</li>
+<li>dfInputSelect</li>
+<li>dfInputRadio</li>
+<li>dfInputCheckbox</li>
+</ul><h3>
+<a name="dfinputsubmit" class="anchor" href="#dfinputsubmit"><span class="octicon octicon-link"></span></a>dfInputSubmit</h3>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfInputSubmit</span> <span class="na">value=</span><span class="s">"Submit"</span> <span class="nt">/&gt;</span>
+</pre></div>
+
+<p>becomes</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;input</span> <span class="na">value=</span><span class="s">"Submit"</span> <span class="na">type=</span><span class="s">"submit"</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h3>
+<a name="dflabel" class="anchor" href="#dflabel"><span class="octicon octicon-link"></span></a>dfLabel</h3>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfLabel</span> <span class="na">ref=</span><span class="s">"timestamp"</span><span class="nt">&gt;</span>Timestamp: <span class="nt">&lt;/dfLabel&gt;</span>
+</pre></div>
+
+<p>becomes</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"tweet.timestamp"</span><span class="nt">&gt;</span>Timestamp: <span class="nt">&lt;/label&gt;</span>
+</pre></div>
+
+<h3>
+<a name="dfform" class="anchor" href="#dfform"><span class="octicon octicon-link"></span></a>dfForm</h3>
+
+<p><code>dfForm</code> is the equivalent of a <code>&lt;form&gt;</code> tag.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfForm</span> <span class="na">action=</span><span class="s">"/tweet"</span><span class="nt">&gt;</span>
+</pre></div>
+
+<p>becomes</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">"/tweet"</span> <span class="na">method=</span><span class="s">"POST"</span> <span class="na">enctype=</span><span class="s">"application/x-www-form-urlencoded"</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h3>
+<a name="dferrorlist" class="anchor" href="#dferrorlist"><span class="octicon octicon-link"></span></a>dfErrorList</h3>
+
+<p><code>dfErrorList</code> renders the errors for a specific input on the form.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfErrorList</span> <span class="na">ref=</span><span class="s">"name"</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h3>
+<a name="dfchilderrorlist" class="anchor" href="#dfchilderrorlist"><span class="octicon octicon-link"></span></a>dfChildErrorList</h3>
+
+<p><code>dfChildErrorList</code> renders as a list of all of the errors in the form.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;dfChildErrorList</span> <span class="na">ref=</span><span class="s">""</span> <span class="nt">/&gt;</span>
+</pre></div>
+
+<p>could render as</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;ul&gt;</span>
+<span class="nt">&lt;li&gt;</span>Username can not be empty<span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;li&gt;</span>timestamp must be an Int<span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;li&gt;</span>Tweet can not be empty<span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;/ul&gt;</span>
+</pre></div>
+      </article>
+      <!-- FOOTER  -->
+      <div id="footer_wrap" class="outer">
+        <footer class="inner">
+          <p class="copyright">Snap for Beginners maintained by <a href="https://github.com/ChristopherBiscardi">ChristopherBiscardi</a></p>
+        </footer>
+      </div>
+
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("UA-46878058-2");
+          pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
+
+
+    </body>
+    </html>

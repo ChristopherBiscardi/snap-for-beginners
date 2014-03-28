@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <meta name="description" content="Snap for Beginners : Sample Chapter: Digestive Functors (Form Processing)" />
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/stylesheet.css">
+
+  <title>Snap for Beginners</title>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div id="header_wrap" class="outer">
+    <header class="inner">
+      <a id="forkme_banner" href="https://gumroad.com/l/qWMnO">I Want This (Order)</a>
+
+      <h1 id="project_title">Snap for Beginners</h1>
+      <h2 id="project_tagline">Sample Chapter: Digestive Functors (Form Processing)</h2>
+
+    </header>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main_content_wrap" class="outer">
+    <section id="main_content" class="inner">
+<article class="markdown-body entry-content">
+        <h1>
+<a name="heist-snaplet" class="anchor" href="#heist-snaplet"><span class="octicon octicon-link"></span></a>Heist Snaplet</h1>
+
+<p>The Heist Snaplet handles the rendering of templates. We will be going over Interpreted Heist in this chapter. There is another usage of Heist called Compiled Heist that is higher performance but also slightly more difficult to work with.</p>
+
+<h2>
+<a name="initializing-the-snaplet" class="anchor" href="#initializing-the-snaplet"><span class="octicon octicon-link"></span></a>Initializing the Snaplet</h2>
+
+<p>As we can see in <code>code/scaffolding</code>, and in the scaffolding chapter, we have to first add Heist to our app definition:</p>
+
+<div class="highlight highlight-haskell"><pre> <span class="kr">data</span> <span class="kt">App</span> <span class="ow">=</span> <span class="kt">App</span> <span class="p">{</span> <span class="n">_heist</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="p">(</span><span class="kt">Heist</span> <span class="kt">App</span><span class="p">)</span> <span class="p">}</span>
+</pre></div>
+
+<p>Then we write a simple instance so we don't have to write <code>with heist</code> in front of all our routes that render templates:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">instance</span> <span class="kt">HasHeist</span> <span class="kt">App</span> <span class="kr">where</span>
+    <span class="n">heistLens</span> <span class="ow">=</span> <span class="n">subSnaplet</span> <span class="n">heist</span>
+</pre></div>
+
+<p>Here we declare an instance of <code>HasHeist App</code>, which is to say that we are telling the compiler that our <code>App</code> does indeed have an instance of Heist accessible. We then define <code>heistLens</code>, which is the function that will be called to access heist from our <code>App</code>, to be <code>subSnaplet heist</code>. This is because in our initialization code (as seen in the scaffolding chapter) we define <code>heist</code> to be a <code>subSnaplet</code> of <code>App</code>.</p>
+
+<p>This instance is totally optional, but if we don't write it we will have to prefix the routes that use <code>heist</code> with <code>with heist</code>.</p>
+
+<p>To finish off the initialization, we will go over how we set up <code>heist</code> as a <code>subSnaplet</code> to <code>App</code>:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">appInit</span> <span class="ow">=</span> <span class="n">makeSnaplet</span> <span class="s">"app"</span> <span class="s">""</span> <span class="kt">Nothing</span> <span class="o">$</span> <span class="kr">do</span>
+     <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"heist"</span> <span class="o">$</span> <span class="n">heistInit</span> <span class="s">"templates"</span>
+     <span class="n">return</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">h</span>
+</pre></div>
+
+<p>We can see that our app is initialized as <code>makeSnaplet "app" "" Nothing</code>, making it a Snaplet. Then, when we return our initialized <code>App</code> structure with the initialized <code>heist</code> Snaplet.</p>
+
+<h2>
+<a name="handler-functions" class="anchor" href="#handler-functions"><span class="octicon octicon-link"></span></a>Handler Functions</h2>
+
+<h3>
+<a name="render" class="anchor" href="#render"><span class="octicon octicon-link"></span></a>render</h3>
+
+<p><code>render</code> renders a template. It is a specialized version of <code>renderAs</code>.</p>
+
+<h4>
+<a name="render-usage" class="anchor" href="#render-usage"><span class="octicon octicon-link"></span></a>render usage</h4>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">myhandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
+<span class="nf">myhandler</span> <span class="ow">=</span> <span class="n">render</span> <span class="s">"mytemplate.tpl"</span>
+</pre></div>
+
+<h3>
+<a name="heistlocal" class="anchor" href="#heistlocal"><span class="octicon octicon-link"></span></a>heistLocal</h3>
+
+<p><code>heistLocal</code> can be used, as seen in <code>code/scaffold-app/Site.hs</code>, to use cutomized splices for specific routes.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">handleLogin</span> <span class="n">authError</span> <span class="ow">=</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="kt">I</span><span class="o">.</span><span class="n">bindSplices</span> <span class="n">errs</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"login"</span>
+  <span class="kr">where</span>
+    <span class="n">errs</span> <span class="ow">=</span> <span class="n">maybe</span> <span class="n">noSplices</span> <span class="n">splice</span> <span class="n">authError</span>
+    <span class="n">splice</span> <span class="n">err</span> <span class="ow">=</span> <span class="s">"loginError"</span> <span class="o">##</span> <span class="kt">I</span><span class="o">.</span><span class="n">textSplice</span> <span class="n">err</span>
+</pre></div>
+
+<p><code>heistLocal</code> takes a function that modifies the Heist state (<code>bindSplices</code> does this), and a Handler to run. In this case our handler is rendering the <code>login.tpl</code> template.</p>
+
+<h3>
+<a name="renderwithsplices" class="anchor" href="#renderwithsplices"><span class="octicon octicon-link"></span></a>renderWithSplices</h3>
+
+<p>We can simplify the above code using <code>renderWithSplices</code>. <code>renderWithSplices</code> is sugar for the combination of <code>heistLocal</code>, <code>bindSplices</code> and <code>render</code> that we just used. The simplified version:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">handleLogin</span> <span class="n">authError</span> <span class="ow">=</span> <span class="n">renderWithSplices</span> <span class="s">"login"</span> <span class="n">errs</span>
+  <span class="kr">where</span>
+    <span class="n">errs</span> <span class="ow">=</span> <span class="n">maybe</span> <span class="n">noSplices</span> <span class="n">splice</span> <span class="n">authError</span>
+    <span class="n">splice</span> <span class="n">err</span> <span class="ow">=</span> <span class="s">"loginError"</span> <span class="o">##</span> <span class="kt">I</span><span class="o">.</span><span class="n">textSplice</span> <span class="n">err</span>
+</pre></div>
+
+<p><code>renderWithSplices</code> takes a template name and some splices and returns a Handler for us that will render the template with the included splices.</p>
+
+<h2>
+<a name="splices" class="anchor" href="#splices"><span class="octicon octicon-link"></span></a>Splices</h2>
+
+<p>Bind and Apply are the main splices that come with Heist.</p>
+
+<h3>
+<a name="bind" class="anchor" href="#bind"><span class="octicon octicon-link"></span></a>Bind</h3>
+
+<p>The Bind tag is used to bind a value to a tag, such as:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;bind</span> <span class="na">tag=</span><span class="s">"postAction"</span><span class="nt">&gt;</span>/login<span class="nt">&lt;/bind&gt;</span>
+<span class="nt">&lt;bind</span> <span class="na">tag=</span><span class="s">"submitText"</span><span class="nt">&gt;</span>Login<span class="nt">&lt;/bind&gt;</span>
+</pre></div>
+
+<p>After using the <code>&lt;bind&gt;</code> tag we can use the values later on in our template by using <code>${tag}</code> syntax.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">"post"</span> <span class="na">action=</span><span class="s">"${postAction}"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">value=</span><span class="s">"${submitText}"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+
+<p>This form with those bound tags would render as:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">"post"</span> <span class="na">action=</span><span class="s">"/login"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">value=</span><span class="s">"Login"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+
+<h3>
+<a name="apply" class="anchor" href="#apply"><span class="octicon octicon-link"></span></a>Apply</h3>
+
+<p>The Apply tag is used to apply templates as to the current template.</p>
+
+<p>Given <code>something.tpl</code> as such:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;h1&gt;</span>In Something Template<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"_something"</span><span class="nt">/&gt;</span>
+</pre></div>
+
+<p>and a template called <code>_something.tpl</code> (the underscore is purely convention for a template we won't use when calling <code>render</code>, but is used as a sub-template) as such:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;p&gt;</span>Content from _something template<span class="nt">&lt;/p&gt;</span>
+</pre></div>
+
+<p>When we <code>render "something"</code> the output will look like:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;h1&gt;</span>In Something Template<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;p&gt;</span>Content from _something template<span class="nt">&lt;/p&gt;</span>
+</pre></div>
+
+<h3>
+<a name="apply-content" class="anchor" href="#apply-content"><span class="octicon octicon-link"></span></a>apply-content</h3>
+
+<p><code>apply-content</code> is used to allow an <code>apply</code> tag to wrap content. For example if we have this <code>base.tpl</code>:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Snap web server<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">type=</span><span class="s">"text/css"</span> <span class="na">href=</span><span class="s">"/screen.css"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"content"</span><span class="nt">&gt;</span>
+
+      <span class="nt">&lt;apply-content/&gt;</span>
+
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+
+<p>We can use it as the "container" like this:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"base"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;h1&gt;</span>All Your Base<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;/apply&gt;</span>
+</pre></div>
+
+<p>The rendered template will look like this:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Snap web server<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">type=</span><span class="s">"text/css"</span> <span class="na">href=</span><span class="s">"/screen.css"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"content"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;h1&gt;</span>All Your Base<span class="nt">&lt;/h1&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+      </article>
+      <!-- FOOTER  -->
+      <div id="footer_wrap" class="outer">
+        <footer class="inner">
+          <p class="copyright">Snap for Beginners maintained by <a href="https://github.com/ChristopherBiscardi">ChristopherBiscardi</a></p>
+        </footer>
+      </div>
+
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("UA-46878058-2");
+          pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
+
+
+    </body>
+    </html>

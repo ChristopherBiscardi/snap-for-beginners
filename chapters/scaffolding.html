@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <meta name="description" content="Snap for Beginners : Sample Chapter: Digestive Functors (Form Processing)" />
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/stylesheet.css">
+
+  <title>Snap for Beginners</title>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div id="header_wrap" class="outer">
+    <header class="inner">
+      <a id="forkme_banner" href="https://gumroad.com/l/qWMnO">I Want This (Order)</a>
+
+      <h1 id="project_title">Snap for Beginners</h1>
+      <h2 id="project_tagline">Sample Chapter: Digestive Functors (Form Processing)</h2>
+
+    </header>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main_content_wrap" class="outer">
+    <section id="main_content" class="inner">
+<article class="markdown-body entry-content">
+        <h1>
+<a name="scaffolding-a-new-project" class="anchor" href="#scaffolding-a-new-project"><span class="octicon octicon-link"></span></a>Scaffolding a New Project</h1>
+
+<p>-- note: The code for a scaffolding app is already present in code/scaffold-app</p>
+
+<p>Now that we have Snap installed we can use the CLI to scaffold a new project.</p>
+
+<p>Create a new directory:</p>
+
+<div class="highlight highlight-bash"><pre>mkdir scaffold-app
+</pre></div>
+
+<p>Then enter the directory and initialize a "default" project:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nb">cd </span>scaffold-app
+cabal sandbox init
+snap init default
+</pre></div>
+
+<p>We now have a default Snap app with a basic user authentication scheme.
+Install the app by running:</p>
+
+<div class="highlight highlight-bash"><pre>cabal install
+</pre></div>
+
+<p>This uses the <code>scaffold-app.cabal</code> file to install dependencies. We can run it the app by running:</p>
+
+<div class="highlight highlight-bash"><pre>.cabal-sandbox/bin/scaffold-app
+</pre></div>
+
+<p>The server defaults to port 8000, so by navigating to <code>localhost:8000</code> we should
+see a running instance of the app. From the homepage, we can create a user and
+then log in to see the demo website.</p>
+
+<h2>
+<a name="codescaffold-app" class="anchor" href="#codescaffold-app"><span class="octicon octicon-link"></span></a>code/scaffold-app</h2>
+
+<p>The Scaffolding code distributed with this book (in <code>code/scaffold-app</code>) is modified in that it contains additional comments. The two files we are concerned with are <code>src/Application.hs</code> and <code>src/Site.hs</code>. <code>src/Application.hs</code> includes some basic setup code for the Authorization, Session and Heist Snaplets. We will go into more detail with Snaplets in later chapters.</p>
+
+<p><code>src/Site.hs</code> is where most of our development will happen. It includes the
+routing, initialization and some route handlers. The handlers can be split out
+into other files, but we will keep them in a single file for now.</p>
+
+<h2>
+<a name="srcapplicationhs" class="anchor" href="#srcapplicationhs"><span class="octicon octicon-link"></span></a>src/Application.hs</h2>
+
+<p><code>src/Application.hs</code> starts off with something that tells our compiler that we are using an extension to the haskell language[^prag]. In this case, it is the <code>TemplateHaskell</code> extension. This won't actually affect us much, as the only place we use Template Haskell is in the call to <code>makeLenses</code> later in this file.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="cm">{-# LANGUAGE TemplateHaskell #-}</span>
+</pre></div>
+
+<p>The next bit of code defines the module for this file. We will use this in our <code>src/Site.hs</code> to import this file. In this case, <code>import Application</code> is what we will write.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">module</span> <span class="nn">Application</span> <span class="kr">where</span>
+</pre></div>
+
+<p>The imports list is next and defines some of the modules we'll be using in our code in this file. <code>Control.Lens</code> will be used as part of our call to <code>makeLenses</code> and the rest are Snaplet modules, since we are defining some of our Snaplet code in this file.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">import</span> <span class="nn">Control.Lens</span>
+<span class="kr">import</span> <span class="nn">Snap.Snaplet</span>
+<span class="kr">import</span> <span class="nn">Snap.Snaplet.Heist</span>
+<span class="kr">import</span> <span class="nn">Snap.Snaplet.Auth</span>
+<span class="kr">import</span> <span class="nn">Snap.Snaplet.Session</span>
+</pre></div>
+
+<p>Next is the most important part of this file, our <code>App</code> datatype[^rec]. This defines the Snaplets we will be using as part of a data structure so that we can initialize and access them later on in <code>src/Site.hs</code>.</p>
+
+<p>We are using the Heist (<code>_heist</code>), Session (<code>_sess</code>) and Authentication (<code>_auth</code>) Snaplets. Each comes with it's own type declaration so that we can be assured that we are putting the right Snaplets in the right places when we initialize our app.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">data</span> <span class="kt">App</span> <span class="ow">=</span> <span class="kt">App</span>
+    <span class="p">{</span> <span class="n">_heist</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="p">(</span><span class="kt">Heist</span> <span class="kt">App</span><span class="p">)</span>
+    <span class="p">,</span> <span class="n">_sess</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="kt">SessionManager</span>
+    <span class="p">,</span> <span class="n">_auth</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span>
+    <span class="p">}</span>
+</pre></div>
+
+<p><code>makeLenses</code> is next. Basically, this automatically creates getters/setters and some other things for us so we don't have to write a bunch of boilerplate. We are calling it on our <code>App</code> datatype, so when we use our Snaplets in <code>src/Site.hs</code> we can call them without the underscores in front (ie: <code>_heist</code> becomes <code>heist</code>).</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">makeLenses</span> <span class="kt">''App</span>
+</pre></div>
+
+<p>Writing an instance for our Heist Snaplet allows us to write less boilerplate code. If we didn't write this instance, we would have to write <code>with heist dosomething</code> whenever we wanted to render a template. The instance basically tells the compiler how to access the Heist Snaplet when we are in a route, so it can figure things out for us.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">instance</span> <span class="kt">HasHeist</span> <span class="kt">App</span> <span class="kr">where</span>
+    <span class="n">heistLens</span> <span class="ow">=</span> <span class="n">subSnaplet</span> <span class="n">heist</span>
+</pre></div>
+
+<p>This is a simple alias. <code>AppHandler</code> and <code>Handler App App</code> mean exactly the same thing. If we were writing a handler for a Snap route, either one of these would be acceptable as the type signature.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">type</span> <span class="kt">AppHandler</span> <span class="ow">=</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span>
+</pre></div>
+
+<h2>
+<a name="srcsitehs" class="anchor" href="#srcsitehs"><span class="octicon octicon-link"></span></a>src/Site.hs</h2>
+
+<h3>
+<a name="language-pragma" class="anchor" href="#language-pragma"><span class="octicon octicon-link"></span></a>Language Pragma</h3>
+
+<p><code>Site.hs</code> starts off with an extension to the Haskell language[^prag]. This one makes it easier to work with string literals in our source code files. Typically, a String literal is of type <code>String</code>. Using <code>OverloadedStrings</code> allows us to write string literals (a string literal is <code>"like this"</code>) of type <code>Text</code>.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span>
+</pre></div>
+
+<h3>
+<a name="module-declaration-and-imports" class="anchor" href="#module-declaration-and-imports"><span class="octicon octicon-link"></span></a>Module Declaration and Imports</h3>
+
+<p>Then we declare our module (<code>Site</code>) and a few imports. This includes the <code>src/Application.hs</code> module, which is imported as <code>import Application</code>.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">module</span> <span class="nn">Site</span>
+  <span class="p">(</span> <span class="nf">app</span>
+  <span class="p">)</span> <span class="kr">where</span>
+
+<span class="c1">-------------------------------------------------------------</span>
+<span class="kr">import</span>           <span class="nn">Control.Applicative</span>
+<span class="kr">import</span>           <span class="nn">Data.ByteString</span> <span class="p">(</span><span class="kt">ByteString</span><span class="p">)</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
+<span class="kr">import</span>           <span class="nn">Snap.Core</span>
+<span class="kr">import</span>           <span class="nn">Snap.Snaplet</span>
+<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth</span>
+<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth.Backends.JsonFile</span>
+<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Heist</span>
+<span class="kr">import</span>           <span class="nn">Snap.Snaplet.Session.Backends.CookieSession</span>
+<span class="kr">import</span>           <span class="nn">Snap.Util.FileServe</span>
+<span class="kr">import</span>           <span class="nn">Heist</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Heist.Interpreted</span> <span class="k">as</span> <span class="n">I</span>
+<span class="c1">-------------------------------------------------------------</span>
+<span class="kr">import</span>           <span class="nn">Application</span>
+</pre></div>
+
+<h3>
+<a name="handlelogin" class="anchor" href="#handlelogin"><span class="octicon octicon-link"></span></a>handleLogin</h3>
+
+<p>Next, we set up the rendering of the login form template (with errors).</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">handleLogin</span> <span class="ow">::</span> <span class="kt">Maybe</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="ow">-&gt;</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">handleLogin</span> <span class="n">authError</span> <span class="ow">=</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="kt">I</span><span class="o">.</span><span class="n">bindSplices</span> <span class="n">errs</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"login"</span>
+  <span class="kr">where</span>
+    <span class="n">errs</span> <span class="ow">=</span> <span class="n">maybe</span> <span class="n">noSplices</span> <span class="n">splice</span> <span class="n">authError</span>
+    <span class="n">splice</span> <span class="n">err</span> <span class="ow">=</span> <span class="s">"loginError"</span> <span class="o">##</span> <span class="kt">I</span><span class="o">.</span><span class="n">textSplice</span> <span class="n">err</span>
+</pre></div>
+
+<p>The type signature breaks down into two pieces split by <code>-&gt;</code>. The first:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kt">Maybe</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+</pre></div>
+
+<p>is the type of the argument to this function. It says that we might get some text or we might get nothing. The second type:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+</pre></div>
+
+<p>is what the function returns. In this case it returns a Snap handler that uses the Authentication Snaplet. A basic handler (without Authentication) has the type <code>Handler App App ()</code>.[^auththing]</p>
+
+<p>The next part starts the function definition.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">handleLogin</span> <span class="n">authError</span> <span class="ow">=</span> <span class="n">heistLocal</span> <span class="p">(</span><span class="kt">I</span><span class="o">.</span><span class="n">bindSplices</span> <span class="n">errs</span><span class="p">)</span> <span class="o">$</span> <span class="n">render</span> <span class="s">"login"</span>
+</pre></div>
+
+<p><code>handleLogin</code> takes one argument, which we've named <code>authError</code>. <code>heistLocal</code> is a function that lets us bind custom splices[^splices] to be used in the <code>"login"</code> template and then use them.</p>
+
+<p><code>errs</code> defines our custom splice:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">errs</span> <span class="ow">=</span> <span class="n">maybe</span> <span class="n">noSplices</span> <span class="n">splice</span> <span class="n">authError</span>
+</pre></div>
+
+<p><code>maybe</code> takes a default values (<code>noSplices</code> in this case), our custom splice (defined as <code>splice</code> on the line below) and the <code>authError</code>. If the <code>authError</code> is <code>Nothing</code> (no errors) we use <code>noSplices</code>, otherwise we use our custom splice.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">splice</span> <span class="n">err</span> <span class="ow">=</span> <span class="s">"loginError"</span> <span class="o">##</span> <span class="kt">I</span><span class="o">.</span><span class="n">textSplice</span> <span class="n">err</span>
+</pre></div>
+
+<p>Here we define our splice. If the <code>authError</code> exists it gets passed to this function as <code>err</code>. We then bind the name <code>"loginError"</code> to our <code>textSplice</code>, which we created from the <code>err</code> text. The splice we just created displays the error using the tag <code>&lt;loginError/&gt;</code> in our heist templates (specifically <code>snaplets/heist/templates/_login.tpl</code>).</p>
+
+<h3>
+<a name="handleloginsubmit" class="anchor" href="#handleloginsubmit"><span class="octicon octicon-link"></span></a>handleLoginSubmit</h3>
+
+<p><code>handleLoginSubmit</code> handles retrieving values from a login form submission using the Authentication Snaplet's <code>loginUser</code> function.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">handleLoginSubmit</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">handleLoginSubmit</span> <span class="ow">=</span>
+    <span class="n">loginUser</span> <span class="s">"login"</span> <span class="s">"password"</span> <span class="kt">Nothing</span>
+              <span class="p">(</span><span class="nf">\</span><span class="kr">_</span> <span class="ow">-&gt;</span> <span class="n">handleLogin</span> <span class="n">err</span><span class="p">)</span> <span class="p">(</span><span class="n">redirect</span> <span class="s">"/"</span><span class="p">)</span>
+  <span class="kr">where</span>
+    <span class="n">err</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="s">"Unknown user or password"</span>
+</pre></div>
+
+<p><code>loginUser</code> takes the names of the username and password form fields (<code>"login"</code> and <code>"password"</code> in our case), the "Remember Me" field (In our case,  <code>Nothing</code> since we aren't using one), a failure function and a success function.</p>
+
+<p>Our failure function is</p>
+
+<div class="highlight highlight-haskell"><pre><span class="p">(</span><span class="nf">\</span><span class="kr">_</span> <span class="ow">-&gt;</span> <span class="n">handleLogin</span> <span class="n">err</span><span class="p">)</span>
+</pre></div>
+
+<p>Which is an anonymous function that takes anything (the <code>_</code> is Haskell for "we don't care what this argument is", in this case because we aren't using any arguments) and returns <code>handleLogin</code> with the error value <code>err</code>.</p>
+
+<p><code>err</code> is <code>Just "Unknown user or password"</code>. We put <code>Just</code> in front of the value because as we saw before, <code>handleLogin</code> takes <code>Maybe T.Text</code> as an argument. The two possible values being <code>Nothing</code> and <code>Just "some text"</code>.</p>
+
+<p>The success function, <code>(redirect "/")</code> simply redirects a successful login to the homepage.</p>
+
+<h3>
+<a name="handlelogout" class="anchor" href="#handlelogout"><span class="octicon octicon-link"></span></a>handleLogout</h3>
+
+<p><code>handleLogout</code> uses the Authentication Snaplet's <code>logout</code> function and then redirects the user to the homepage.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">handleLogout</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">handleLogout</span> <span class="ow">=</span> <span class="n">logout</span> <span class="o">&gt;&gt;</span> <span class="n">redirect</span> <span class="s">"/"</span>
+</pre></div>
+
+<p>The <code>&gt;&gt;</code> operator sequences the two functions, discarding any values produced by <code>logout</code>.</p>
+
+<h3>
+<a name="handlenewuser" class="anchor" href="#handlenewuser"><span class="octicon octicon-link"></span></a>handleNewUser</h3>
+
+<p><code>handleNewUser</code> splits a request into two different functions for <code>GET</code> and <code>POST</code>.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">handleNewUser</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">handleNewUser</span> <span class="ow">=</span> <span class="n">method</span> <span class="kt">GET</span> <span class="n">handleForm</span> <span class="o">&lt;|&gt;</span> <span class="n">method</span> <span class="kt">POST</span> <span class="n">handleFormSubmit</span>
+  <span class="kr">where</span>
+    <span class="n">handleForm</span> <span class="ow">=</span> <span class="n">render</span> <span class="s">"new_user"</span>
+    <span class="n">handleFormSubmit</span> <span class="ow">=</span> <span class="n">registerUser</span> <span class="s">"login"</span> <span class="s">"password"</span> <span class="o">&gt;&gt;</span> <span class="n">redirect</span> <span class="s">"/"</span>
+</pre></div>
+
+<p>For a <code>GET</code> request, we use <code>handleForm</code>, which just renders the <code>"new_user"</code> template.</p>
+
+<p>For a <code>POST</code> request, we use the Authentication Snaplet's <code>registerUser</code>. <code>registerUser</code> takes the username and password fields (In our case <code>"login"</code> and <code>"password"</code>).</p>
+
+<h3>
+<a name="routing" class="anchor" href="#routing"><span class="octicon octicon-link"></span></a>Routing</h3>
+
+<p>Our routes are defined next. <code>with auth</code> is how we say "this route is going to be using the Authentication Snaplet's functions".</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">routes</span> <span class="ow">::</span> <span class="p">[(</span><span class="kt">ByteString</span><span class="p">,</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span><span class="p">)]</span>
+<span class="nf">routes</span> <span class="ow">=</span> <span class="p">[</span> <span class="p">(</span><span class="s">"/login"</span><span class="p">,</span>    <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLoginSubmit</span><span class="p">)</span>
+         <span class="p">,</span> <span class="p">(</span><span class="s">"/logout"</span><span class="p">,</span>   <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLogout</span><span class="p">)</span>
+         <span class="p">,</span> <span class="p">(</span><span class="s">"/new_user"</span><span class="p">,</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">handleNewUser</span><span class="p">)</span>
+         <span class="p">,</span> <span class="p">(</span><span class="s">""</span><span class="p">,</span>          <span class="n">serveDirectory</span> <span class="s">"static"</span><span class="p">)</span>
+         <span class="p">]</span>
+</pre></div>
+
+<p>We also serve static files from the <code>static</code> folder.</p>
+
+<h3>
+<a name="initialization" class="anchor" href="#initialization"><span class="octicon octicon-link"></span></a>Initialization</h3>
+
+<p>The most involved code is the <code>app</code> initialization code.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">app</span> <span class="ow">::</span> <span class="kt">SnapletInit</span> <span class="kt">App</span> <span class="kt">App</span>
+<span class="nf">app</span> <span class="ow">=</span> <span class="n">makeSnaplet</span> <span class="s">"app"</span> <span class="s">"An snaplet example application."</span> <span class="kt">Nothing</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">""</span> <span class="n">heist</span> <span class="o">$</span> <span class="n">heistInit</span> <span class="s">"templates"</span>
+    <span class="n">s</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"sess"</span> <span class="n">sess</span> <span class="o">$</span>
+           <span class="n">initCookieSessionManager</span> <span class="s">"site_key.txt"</span> <span class="s">"sess"</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"auth"</span> <span class="n">auth</span> <span class="o">$</span>
+           <span class="n">initJsonFileAuthManager</span> <span class="n">defAuthSettings</span> <span class="n">sess</span> <span class="s">"users.json"</span>
+    <span class="n">addRoutes</span> <span class="n">routes</span>
+    <span class="n">addAuthSplices</span> <span class="n">h</span> <span class="n">auth</span>
+    <span class="n">return</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">h</span> <span class="n">s</span> <span class="n">a</span>
+</pre></div>
+
+<p>First we say that <code>app</code> will hold our initialized <code>App</code> (from <code>src/Application.hs</code>). <code>makeSnaplet</code> takes an id (<code>"app"</code> in this case), a description, a <code>Maybe (IO FilePath)</code> (which we'll just set to <code>Nothing</code> since this isn't a packaged Snaplet) and an Initializer.</p>
+
+<p>In this case our Initializer is our <code>do</code> statement.</p>
+
+<p>Common to all of the Snaplets we are about to initialize is <code>nestSnaplet</code>. <code>nestSnaplet</code> takes a root url for any routes defined in the Snaplet, the name of the Snaplet as
+defined in <code>src/Application.hs</code> without the underscore (also known as a Lens because we ran <code>makeLenses</code> on it), and the Snaplet specific initializer function.</p>
+
+<p>The first thing we do is initialize our Heist Snaplet.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">h</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">""</span> <span class="n">heist</span> <span class="o">$</span> <span class="n">heistInit</span> <span class="s">"templates"</span>
+</pre></div>
+
+<p>Using a call to <code>nestSnaplet</code> we pass in: The root path for the routes (<code>""</code>), <code>heist</code> (which is the Lens value we made from <code>_heist</code>) and the result of <code>heistInit "templates"</code>, which is our Heist initializer. <code>heistInit</code>'s argument is the folder that we are storing our templates in (in this case the Heist Snaplet is located in <code>snaplets/heist</code> and our templates are in <code>snaplets/heist/templates</code> so we pass in <code>"templates"</code>).</p>
+
+<p>The next Snaplet to be initialized is the Session Snaplet. This will be used with the Authentication Snaplet to give us sessions.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">s</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"sess"</span> <span class="n">sess</span> <span class="o">$</span>
+       <span class="n">initCookieSessionManager</span> <span class="s">"site_key.txt"</span> <span class="s">"sess"</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3600</span><span class="p">)</span>
+</pre></div>
+
+<p>Once again we call <code>nestSnaplet</code> with the base route and Lens value (<code>sess</code> because we used <code>_sess</code> in <code>src/Application.hs</code>). We then initialize a Cookie-based backend with <code>initCookieSessionManager</code>.</p>
+
+<p><code>initCookieSessionManager</code> takes an encryption key (generated for us in <code>site_key.txt</code>), a name (<code>"sess"</code>) and a session timeout for replay attack protection (<code>Just 3600</code>).</p>
+
+<p>The Authorization Snaplet is initialized next.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">a</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"auth"</span> <span class="n">auth</span> <span class="o">$</span>
+       <span class="n">initJsonFileAuthManager</span> <span class="n">defAuthSettings</span> <span class="n">sess</span> <span class="s">"users.json"</span>
+</pre></div>
+
+<p>Again a call to <code>nestSnaplet</code>. The Authentication Snaplet has support for multiple backends, such as a flat json file or PostgreSQL. In this case, we initialize a JSON file with the default authentication settings (<code>defAuthSettings</code>), the Session Snaplet we just initialized (<code>sess</code>) and a filename to store the data in (<code>"users.json"</code>).</p>
+
+<p><code>defAuthSettings</code> contains a few fields:</p>
+
+<div class="highlight highlight-yaml"><pre><span class="l-Scalar-Plain">asMinPasswdLen = 8</span>
+<span class="l-Scalar-Plain">asRememberCookieName = "_remember"</span>
+<span class="l-Scalar-Plain">asRememberPeriod = Just (2*7*24*60*60) = 2 weeks</span>
+<span class="l-Scalar-Plain">asLockout = Nothing</span>
+<span class="l-Scalar-Plain">asSiteKey = "site_key.txt"</span>
+</pre></div>
+
+<p>Currently, <code>asMinPasswdLen</code> is not used by the Auth Snaplet. More information about these fields is availible in the Snap docs on <a href="http://hackage.haskell.org/package/snap-0.13.2.2/docs/Snap-Snaplet-Auth.html#t:AuthSettings">Hackage</a>.</p>
+
+<p>Finally:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">addRoutes</span> <span class="n">routes</span>
+<span class="nf">addAuthSplices</span> <span class="n">h</span> <span class="n">auth</span>
+<span class="nf">return</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">h</span> <span class="n">s</span> <span class="n">a</span>
+</pre></div>
+
+<p>We add our routes, add some splices from the Auth Snaplet and return an instance of the <code>App</code> definition from <code>src/Application.hs</code> that includes the heist (<code>h</code>), session (<code>s</code>) and auth (<code>a</code>) instances.</p>
+
+<h2>
+<a name="snapletsheisttemplates" class="anchor" href="#snapletsheisttemplates"><span class="octicon octicon-link"></span></a>snaplets/heist/templates/</h2>
+
+<p>This folder holds our Heist templates. <code>snaplets/heist</code> is the base directory for the Heist Snaplet and templates is a directory that has been created so that Heist has access to our templates.</p>
+
+<h3>
+<a name="_logintpl" class="anchor" href="#_logintpl"><span class="octicon octicon-link"></span></a>_login.tpl</h3>
+
+<p>The <code>_login</code> template is rendered as a sub-piece of the <code>login.tpl</code> template.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;h1&gt;</span>Snap Example App Login<span class="nt">&lt;/h1&gt;</span>
+
+<span class="nt">&lt;p&gt;&lt;loginError/&gt;&lt;/p&gt;</span>
+
+<span class="nt">&lt;bind</span> <span class="na">tag=</span><span class="s">"postAction"</span><span class="nt">&gt;</span>/login<span class="nt">&lt;/bind&gt;</span>
+<span class="nt">&lt;bind</span> <span class="na">tag=</span><span class="s">"submitText"</span><span class="nt">&gt;</span>Login<span class="nt">&lt;/bind&gt;</span>
+<span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"userform"</span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;p&gt;</span>Don't have a login yet? <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/new_user"</span><span class="nt">&gt;</span>Create a new user<span class="nt">&lt;/a&gt;&lt;/p&gt;</span>
+</pre></div>
+
+<p><code>&lt;loginError/&gt;</code> is a splice we created in <code>handleLogin</code> in our <code>src/Site.hs</code> file. The splice, as we defined it, shows the error message if it exists.</p>
+
+<p>We have two <code>&lt;bind&gt;</code> tags next. These function a bit like defining variables and are used later on in our template. Specifically in the <code>userform</code> section specified by the apply tag below.</p>
+
+<p>The next line is an <code>&lt;apply&gt;</code> tag. It is used to render <code>userform.tpl</code> as part of this template.</p>
+
+<h3>
+<a name="_new_usertpl" class="anchor" href="#_new_usertpl"><span class="octicon octicon-link"></span></a>_new_user.tpl</h3>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;h1&gt;</span>Register a new user<span class="nt">&lt;/h1&gt;</span>
+
+<span class="nt">&lt;bind</span> <span class="na">tag=</span><span class="s">"postAction"</span><span class="nt">&gt;</span>/new_user<span class="nt">&lt;/bind&gt;</span>
+<span class="nt">&lt;bind</span> <span class="na">tag=</span><span class="s">"submitText"</span><span class="nt">&gt;</span>Add User<span class="nt">&lt;/bind&gt;</span>
+<span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"userform"</span><span class="nt">/&gt;</span>
+</pre></div>
+
+<p><code>_new_user.tpl</code> is similar to <code>_login.tpl</code>. The only difference is that the values of the <code>&lt;bind&gt;</code> tags are different. This shows how a template can be modified by the context in which it is rendered.</p>
+
+<h3>
+<a name="basetpl" class="anchor" href="#basetpl"><span class="octicon octicon-link"></span></a>base.tpl</h3>
+
+<p><code>base.tpl</code> is the base outline of our templates. It includes all the scaffolding such as <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code> and <code>&lt;body&gt;</code>.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Snap web server<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">type=</span><span class="s">"text/css"</span> <span class="na">href=</span><span class="s">"/screen.css"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"content"</span><span class="nt">&gt;</span>
+
+      <span class="nt">&lt;apply-content/&gt;</span>
+
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+
+<p>Inside of the <code>&lt;div id="content"&gt;</code> is <code>&lt;apply-content&gt;</code>. This allows us to use <code>base.tpl</code> as a wrapper for whatever content we want, as we will see in <code>index.tpl</code>.</p>
+
+<h3>
+<a name="indextpl" class="anchor" href="#indextpl"><span class="octicon octicon-link"></span></a>index.tpl</h3>
+
+<p>The <code>index.tpl</code> template is a little more interesting. The first tag applies the base template. Anything inside the <code>&lt;apply template="base"&gt;</code> tag will go where we wrote <code>&lt;apply-content&gt;</code> in <code>base.tpl</code>.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"base"</span><span class="nt">&gt;</span>
+
+  <span class="nt">&lt;ifLoggedIn&gt;</span>
+    <span class="nt">&lt;p&gt;</span>
+      This is a simple demo page served using
+      <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"http://snapframework.com/docs/tutorials/heist"</span><span class="nt">&gt;</span>Heist<span class="nt">&lt;/a&gt;</span>
+      and the <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"http://snapframework.com/"</span><span class="nt">&gt;</span>Snap<span class="nt">&lt;/a&gt;</span> web framework.
+    <span class="nt">&lt;/p&gt;</span>
+
+    <span class="nt">&lt;p&gt;</span>Congrats!  You're logged in as '<span class="nt">&lt;loggedInUser/&gt;</span>'<span class="nt">&lt;/p&gt;</span>
+
+    <span class="nt">&lt;p&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/logout"</span><span class="nt">&gt;</span>Logout<span class="nt">&lt;/a&gt;&lt;/p&gt;</span>
+  <span class="nt">&lt;/ifLoggedIn&gt;</span>
+
+  <span class="nt">&lt;ifLoggedOut&gt;</span>
+    <span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"_login"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/ifLoggedOut&gt;</span>
+
+<span class="nt">&lt;/apply&gt;</span>
+</pre></div>
+
+<p><code>&lt;ifLoggedIn&gt;</code> is one of the Auth Splices we added in <code>src/Site.hs</code> when we initialized our app. The content inside this tag only renders if the user is logged in.</p>
+
+<p><code>&lt;loggedInUser/&gt;</code> is similar, but it displays the username of the logged in user.</p>
+
+<p><code>&lt;ifLoggedOut&gt;</code> is also an Auth Splice. It renders it's content if the user is not logged in. In this case, it renders the <code>_login.tpl</code> template.</p>
+
+<h3>
+<a name="logintpl" class="anchor" href="#logintpl"><span class="octicon octicon-link"></span></a>login.tpl</h3>
+
+<p>The <code>login.tpl</code> template is super simple. It applies the base template and uses <code>_login.tpl</code> as the content.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"base"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"_login"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/apply&gt;</span>
+</pre></div>
+
+<h3>
+<a name="new_usertpl" class="anchor" href="#new_usertpl"><span class="octicon octicon-link"></span></a>new_user.tpl</h3>
+
+<p>The <code>new_user.tpl</code> template is very similar to <code>login.tpl</code>. It applies the base template and uses <code>_new_user.tpl</code> as the content.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"base"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;apply</span> <span class="na">template=</span><span class="s">"_new_user"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/apply&gt;</span>
+</pre></div>
+
+<h3>
+<a name="userformtpl" class="anchor" href="#userformtpl"><span class="octicon octicon-link"></span></a>userform.tpl</h3>
+
+<p><code>userform.tpl</code> uses the content of the <code>&lt;bind&gt;</code> tags from the other templates. To access the value of the bind tag, we use <code>${tag}</code>. In the case of <code>postAction</code> it looks like <code>${postAction}</code>.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">"post"</span> <span class="na">action=</span><span class="s">"${postAction}"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;table</span> <span class="na">id=</span><span class="s">"info"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;td&gt;</span>Login:<span class="nt">&lt;/td&gt;&lt;td&gt;&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">name=</span><span class="s">"login"</span> <span class="na">size=</span><span class="s">"20"</span> <span class="nt">/&gt;&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;td&gt;</span>Password:<span class="nt">&lt;/td&gt;&lt;td&gt;&lt;input</span> <span class="na">type=</span><span class="s">"password"</span>
+      <span class="na">name=</span><span class="s">"password"</span> <span class="na">size=</span><span class="s">"20"</span> <span class="nt">/&gt;&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;td&gt;&lt;/td&gt;</span>
+      <span class="nt">&lt;td&gt;&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">value=</span><span class="s">"${submitText}"</span> <span class="nt">/&gt;&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+  <span class="nt">&lt;/table&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+
+<h2>
+<a name="fin" class="anchor" href="#fin"><span class="octicon octicon-link"></span></a>Fin</h2>
+
+<p>That's it for the default template. From here use the other chapters to learn more about various pieces of Snap. Later in the book we will go over Digestive Functors, which can be used to render and process forms with validation, and Heist, which has more splices (such as Markdown) an Interpreted and a Compiled library.</p>
+
+<p>[^prag]: This is a Language Pragma. There is plenty of information on them online if you search for "haskell language pragmas".
+[^rec]: The way we are writing this datatype is called "Record Syntax".
+[^auththing]: More on this in the Authentication and Routing chapters.
+[^splices]: More on splices in the Heist chapter</p>
+      </article>
+      <!-- FOOTER  -->
+      <div id="footer_wrap" class="outer">
+        <footer class="inner">
+          <p class="copyright">Snap for Beginners maintained by <a href="https://github.com/ChristopherBiscardi">ChristopherBiscardi</a></p>
+        </footer>
+      </div>
+
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("UA-46878058-2");
+          pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
+
+
+    </body>
+    </html>

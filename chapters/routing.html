@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <meta name="description" content="Snap for Beginners : Sample Chapter: Digestive Functors (Form Processing)" />
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/stylesheet.css">
+
+  <title>Snap for Beginners</title>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div id="header_wrap" class="outer">
+    <header class="inner">
+      <a id="forkme_banner" href="https://gumroad.com/l/qWMnO">I Want This (Order)</a>
+
+      <h1 id="project_title">Snap for Beginners</h1>
+      <h2 id="project_tagline">Sample Chapter: Digestive Functors (Form Processing)</h2>
+
+    </header>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main_content_wrap" class="outer">
+    <section id="main_content" class="inner">
+<article class="markdown-body entry-content">
+        <h1>
+<a name="routing" class="anchor" href="#routing"><span class="octicon octicon-link"></span></a>Routing</h1>
+
+<p>Snap allows writing routes in fairly familiar way. It then takes these routes in the <code>addRoutes</code> function and turns them into a trie that gives us O(log n) dispatching time.</p>
+
+<h2>
+<a name="route-definitions" class="anchor" href="#route-definitions"><span class="octicon octicon-link"></span></a>Route Definitions</h2>
+
+<p>The route definitions from <code>code/routing-app/src/Site.hs</code>:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">routes</span> <span class="ow">::</span> <span class="p">[(</span><span class="kt">ByteString</span><span class="p">,</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span><span class="p">)]</span>
+<span class="nf">routes</span> <span class="ow">=</span> <span class="p">[</span> <span class="p">(</span><span class="s">"/logins"</span><span class="p">,</span>    <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLoginSubmit</span><span class="p">)</span>
+         <span class="p">,</span> <span class="p">(</span><span class="s">"/logout"</span><span class="p">,</span>   <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLogout</span><span class="p">)</span>
+         <span class="p">,</span> <span class="p">(</span><span class="s">"/new_user"</span><span class="p">,</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">handleNewUser</span><span class="p">)</span>
+         <span class="p">,</span> <span class="p">(</span><span class="s">""</span><span class="p">,</span>          <span class="n">serveDirectory</span> <span class="s">"static"</span><span class="p">)</span>
+         <span class="p">]</span>
+</pre></div>
+
+<p>which we then add in our app initialization:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">addRoutes</span> <span class="n">routes</span>
+</pre></div>
+
+<p>We can see that we define our routes with a list of tuples. Each tuple consists of a URL fragment and a function.</p>
+
+<p>Similar routes are combined using Control.Applicative's Alternative class (<code>&lt;|&gt;</code>). To get some basic intuition for how <code>&lt;|&gt;</code> works, we can run some experiments in <code>ghci</code>.</p>
+
+<p>Enter ghci:</p>
+
+<div class="highlight highlight-bash"><pre>ghci
+</pre></div>
+
+<p>Import <code>Control.Applicative</code></p>
+
+<div class="highlight highlight-bash"><pre>:m Control.Applicative
+</pre></div>
+
+<p>Now we can use the <code>&lt;|&gt;</code> operator to test. In this example <code>&gt;</code> is used to represent the prompt, everything after <code>&gt;</code> is typed into ghci and content without a <code>&gt;</code> at the beginning is the return value of the previous line.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="o">&gt;</span><span class="kt">Nothing</span> <span class="o">&lt;|&gt;</span> <span class="kt">Just</span> <span class="mi">4</span>
+<span class="kt">Just</span> <span class="mi">4</span>
+<span class="o">&gt;</span><span class="kt">Nothing</span> <span class="o">&lt;|&gt;</span> <span class="kt">Just</span> <span class="mi">4</span> <span class="o">&lt;|&gt;</span> <span class="kt">Just</span> <span class="mi">5</span>
+<span class="kt">Just</span> <span class="mi">4</span>
+<span class="o">&gt;</span> <span class="kt">Nothing</span> <span class="o">&lt;|&gt;</span> <span class="kt">Nothing</span> <span class="o">&lt;|&gt;</span> <span class="kt">Just</span> <span class="mi">5</span>
+<span class="kt">Just</span> <span class="mi">5</span>
+<span class="o">&gt;</span><span class="kt">Nothing</span> <span class="o">&lt;|&gt;</span> <span class="kt">Nothing</span> <span class="o">&lt;|&gt;</span> <span class="kt">Nothing</span>
+<span class="kt">Nothing</span>
+</pre></div>
+
+<p>We use <code>&lt;|&gt;</code> later in this chapter to match routes based on method.</p>
+
+<h3>
+<a name="parameters" class="anchor" href="#parameters"><span class="octicon octicon-link"></span></a>Parameters</h3>
+
+<p>Parameters can be in three places: <code>rqQueryParams</code> for the query string, <code>rqPostParams</code> for <code>POST</code> bodies and <code>rqParams</code> for a union of the two previous maps.</p>
+
+<h3>
+<a name="url-parameters" class="anchor" href="#url-parameters"><span class="octicon octicon-link"></span></a>URL Parameters</h3>
+
+<p>We can also use the <code>:paramname</code> form in the route to get parameters from the URI. We'll use a sample handler to echo back the parameter in the url:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">echoHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
+<span class="nf">echoHandler</span> <span class="ow">=</span> <span class="kr">do</span>
+  <span class="n">param</span> <span class="ow">&lt;-</span> <span class="n">getParam</span> <span class="s">"echoparam"</span>
+  <span class="n">maybe</span> <span class="p">(</span><span class="n">writeBS</span> <span class="s">"must specify echo/param in URL"</span><span class="p">)</span>
+         <span class="n">writeBS</span> <span class="n">param</span>
+</pre></div>
+
+<p><code>getParam</code> will get the parameter from either a GET or POST request and then we respond with either <code>"must specify echo/param in URL"</code> if there is no <code>param</code> or the value of the <code>param</code>. Here is the route we use:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">routes</span> <span class="ow">=</span> <span class="p">[(</span><span class="s">"/echo/:echoparam"</span><span class="p">,</span> <span class="n">echoHandler</span><span class="p">)]</span>
+</pre></div>
+
+<p>It will be used for <code>/echo/something/</code> and for <code>/echo/something/many/things/</code> but not for <code>/echo/</code>. Both times it will respond with <code>"something"</code>.</p>
+
+<h3>
+<a name="iftop" class="anchor" href="#iftop"><span class="octicon octicon-link"></span></a>ifTop</h3>
+
+<p>We can solve this issue with <code>ifTop</code>. We can create a second route that will only respond to the base route we define, in this case <code>/echotwo/parameter</code>. <code>/echotwo/</code> and <code>/echotwo/something/anythinghere/</code> will fail.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="p">(</span><span class="s">"/echotwo/:echoparam"</span><span class="p">,</span> <span class="n">ifTop</span> <span class="n">echoHandler</span><span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="method-verb" class="anchor" href="#method-verb"><span class="octicon octicon-link"></span></a>method VERB</h3>
+
+<p>For additional restriction we can use <code>method</code>. <code>method</code> allows us to restrict route handlers to specific verbs, such as GET or POST.</p>
+
+<p>We can define two handlers for GET and POST that simply respond with "getHandler" and "postHandler" respectively.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">getHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
+<span class="nf">getHandler</span> <span class="ow">=</span> <span class="n">writeBS</span> <span class="s">"getHandler"</span>
+
+<span class="nf">postHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
+<span class="nf">postHandler</span> <span class="ow">=</span> <span class="n">writeBS</span> <span class="s">"postHandler"</span>
+</pre></div>
+
+<p>We can then set up <code>method GET getHandler</code>, which will only run GET requests to the <code>getHandler</code> we can then chain it with <code>method POST postHandler</code> using <code>&lt;|&gt;</code>. Note that this will behave very similar to the example at the beginning of the chapter. Behind the scenes <code>method</code> uses <code>unless</code> from <code>Control.Monad</code> to determine whether or not to "pass" to the next handler.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="p">(</span><span class="s">"/getorpost"</span><span class="p">,</span> <span class="n">method</span> <span class="kt">GET</span> <span class="n">getHandler</span> <span class="o">&lt;|&gt;</span> <span class="n">method</span> <span class="kt">POST</span> <span class="n">postHandler</span><span class="p">)</span>
+</pre></div>
+
+<p>We could then run curl to test the routes:</p>
+
+<div class="highlight highlight-bash"><pre>curl localhost:8000/getorpost
+</pre></div>
+
+<p>should return <code>"getHandler"</code> while:</p>
+
+<div class="highlight highlight-bash"><pre>curl -XPOST localhost:8000/getorpost -d <span class="s2">"stuff"</span>
+</pre></div>
+
+<p>will return <code>"postHandler"</code>.</p>
+
+<h2>
+<a name="sending-data-back" class="anchor" href="#sending-data-back"><span class="octicon octicon-link"></span></a>Sending Data Back</h2>
+
+<p>There are many ways to send data in the response. A few of them are here. If we use the OverloadedStrings language pragma we can write string literals as below. If we don't we would have to write the respective pack functions for each data type.</p>
+
+<p>It is important to note that <code>writeBS</code> doesn't actually write to the socket, but rather adds to the closure in the Response that <em>will</em> be called. This allows us to use multiple calls to <code>writeBS</code> in the same handler. The 1.0 release of Snap will be based on streams (using io-streams). A future version of this book will cover that.</p>
+
+<h3>
+<a name="writebs" class="anchor" href="#writebs"><span class="octicon octicon-link"></span></a>writeBS</h3>
+
+<p>Writes a ByteString back to the client.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">writeBS</span> <span class="s">"data here"</span>
+</pre></div>
+
+<h3>
+<a name="writetext" class="anchor" href="#writetext"><span class="octicon octicon-link"></span></a>writeText</h3>
+
+<p>Writes Text back to the client.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">writeText</span> <span class="s">"data here"</span>
+</pre></div>
+
+<h3>
+<a name="writejson" class="anchor" href="#writejson"><span class="octicon octicon-link"></span></a>writeJSON</h3>
+
+<p><code>writeJSON</code> is from the Snap.Extras.JSON package and can be used in conjunction with Data.Aeson to more easily write JSON responses. It will set the MIME to <code>'application/json'</code> and write the given object into the response body.</p>
+
+<p>If we have a custom datatype and a <code>ToJSON</code> instance from <code>Data.Aeson</code> we can use writeJSON<code>to send it as a JSON representation. From</code>code/routing-app/src/Site.hs`:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">data</span> <span class="kt">Person</span>  <span class="ow">=</span> <span class="kt">Person</span> <span class="p">{</span>
+  <span class="n">name</span> <span class="ow">::</span> <span class="kt">String</span>
+  <span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+<span class="kr">instance</span> <span class="kt">ToJSON</span> <span class="kt">Person</span> <span class="kr">where</span>
+  <span class="n">toJSON</span> <span class="p">(</span><span class="kt">Person</span> <span class="n">s</span><span class="p">)</span> <span class="ow">=</span> <span class="n">object</span> <span class="p">[</span><span class="s">"name"</span> <span class="o">.=</span> <span class="n">s</span><span class="p">]</span>
+</pre></div>
+
+<p>and in our route/handler we create a new <code>Person</code> and pass it to <code>writeJSON</code>:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="p">(</span><span class="s">"/json"</span><span class="p">,</span> <span class="n">writeJSON</span> <span class="o">$</span> <span class="kt">Person</span> <span class="s">"me"</span><span class="p">)</span>
+</pre></div>
+
+<p>When we hit <code>http://localhost:8000/json</code> we should get:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="p">{</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"me"</span><span class="p">}</span>
+</pre></div>
+      </article>
+      <!-- FOOTER  -->
+      <div id="footer_wrap" class="outer">
+        <footer class="inner">
+          <p class="copyright">Snap for Beginners maintained by <a href="https://github.com/ChristopherBiscardi">ChristopherBiscardi</a></p>
+        </footer>
+      </div>
+
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("UA-46878058-2");
+          pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
+
+
+    </body>
+    </html>

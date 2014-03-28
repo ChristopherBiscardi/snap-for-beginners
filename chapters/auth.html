@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <meta name="description" content="Snap for Beginners : Sample Chapter: Digestive Functors (Form Processing)" />
+
+  <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/stylesheet.css">
+
+  <title>Snap for Beginners</title>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div id="header_wrap" class="outer">
+    <header class="inner">
+      <a id="forkme_banner" href="https://gumroad.com/l/qWMnO">I Want This (Order)</a>
+
+      <h1 id="project_title">Snap for Beginners</h1>
+      <h2 id="project_tagline">Sample Chapter: Digestive Functors (Form Processing)</h2>
+
+    </header>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main_content_wrap" class="outer">
+    <section id="main_content" class="inner">
+<article class="markdown-body entry-content">
+        <h1>
+<a name="authentication-snaplet" class="anchor" href="#authentication-snaplet"><span class="octicon octicon-link"></span></a>Authentication Snaplet</h1>
+
+<p>The Auth Snaplet handles user signup, login and route restriction. This chapter uses code from <code>code/auth-app</code>.</p>
+
+<h2>
+<a name="basics" class="anchor" href="#basics"><span class="octicon octicon-link"></span></a>Basics</h2>
+
+<h3>
+<a name="adding-to-app-definition" class="anchor" href="#adding-to-app-definition"><span class="octicon octicon-link"></span></a>Adding to App Definition</h3>
+
+<p>Simply add <code>_auth</code> with a type of <code>Snaplet (AuthManager App)</code>, we also need the Session Snaplet so we'll add that too. The heist snaplet is not strictly necessary, but we will use it to render splices from the Auth Snaplet.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">data</span> <span class="kt">App</span> <span class="ow">=</span> <span class="kt">App</span>
+    <span class="p">{</span> <span class="n">_heist</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="p">(</span><span class="kt">Heist</span> <span class="kt">App</span><span class="p">)</span>
+    <span class="p">,</span> <span class="n">_sess</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="kt">SessionManager</span>
+    <span class="p">,</span> <span class="n">_auth</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span>
+    <span class="p">}</span>
+</pre></div>
+
+<h3>
+<a name="initialization" class="anchor" href="#initialization"><span class="octicon octicon-link"></span></a>Initialization</h3>
+
+<p>First we will initialize the Session Snaplet, then use the initialized Session Snaplet to initialize the Authentication Snaplet.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">app</span> <span class="ow">::</span> <span class="kt">SnapletInit</span> <span class="kt">App</span> <span class="kt">App</span>
+<span class="nf">app</span> <span class="ow">=</span> <span class="n">makeSnaplet</span> <span class="s">"app"</span> <span class="s">"An snaplet example application."</span> <span class="kt">Nothing</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">""</span> <span class="n">heist</span> <span class="o">$</span> <span class="n">heistInit</span> <span class="s">"templates"</span>
+    <span class="n">s</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"sess"</span> <span class="n">sess</span> <span class="o">$</span>
+           <span class="n">initCookieSessionManager</span> <span class="s">"site_key.txt"</span> <span class="s">"sess"</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"auth"</span> <span class="n">auth</span> <span class="o">$</span>
+           <span class="n">initJsonFileAuthManager</span> <span class="n">defAuthSettings</span> <span class="n">sess</span> <span class="s">"users.json"</span>
+    <span class="n">addRoutes</span> <span class="n">routes</span>
+    <span class="n">addAuthSplices</span> <span class="n">h</span> <span class="n">auth</span>
+    <span class="n">return</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">h</span> <span class="n">s</span> <span class="n">a</span>
+</pre></div>
+
+<h3>
+<a name="adding-auth-to-routes" class="anchor" href="#adding-auth-to-routes"><span class="octicon octicon-link"></span></a>Adding Auth to Routes</h3>
+
+<p>To use auth-specific functions in routes we use <code>with</code>:</p>
+
+<div class="highlight highlight-haskell"><pre>  <span class="p">(</span><span class="s">"/login"</span><span class="p">,</span>    <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLoginSubmit</span><span class="p">)</span>
+<span class="p">,</span> <span class="p">(</span><span class="s">"/logout"</span><span class="p">,</span>   <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLogout</span><span class="p">)</span>
+<span class="p">,</span> <span class="p">(</span><span class="s">"/new_user"</span><span class="p">,</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">handleNewUser</span><span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="handler-type" class="anchor" href="#handler-type"><span class="octicon octicon-link"></span></a>Handler Type</h3>
+
+<p><code>with auth</code> takes a handler with a slightly different signature as an argument and returns a handler of the normal <code>Handler App App ()</code> type. This means that the <code>handle*</code> functions in the example above are of this type:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">handleLogout</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">handleLogout</span> <span class="ow">=</span> <span class="n">logout</span> <span class="o">&gt;&gt;</span> <span class="n">redirect</span> <span class="s">"/"</span>
+</pre></div>
+
+<p>We could rewrite the <code>"/logout"</code> handler to make this a bit more clear. We will add a new route <code>"/hlogout"</code>, split out <code>with auth handleLogout</code> into it's own function (with type signature) and use the same <code>handleLogout</code> function to see the difference in handler types.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="p">,</span> <span class="p">(</span><span class="s">"/hlogout"</span><span class="p">,</span>   <span class="n">hLogout</span><span class="p">)</span>
+</pre></div>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">hLogout</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="kt">App</span> <span class="nb">()</span>
+<span class="nf">hLogout</span> <span class="ow">=</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">handleLogout</span>
+
+<span class="nf">handleLogout</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">handleLogout</span> <span class="ow">=</span> <span class="n">logout</span> <span class="o">&gt;&gt;</span> <span class="n">redirect</span> <span class="s">"/"</span>
+</pre></div>
+
+<p>If we look at our <code>App</code> declaration in <code>code/auth-app/src/Application.hs</code> we can see that the new type signature for our handlers includes the type of our Auth Snaplet:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="p">,</span> <span class="n">_auth</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span>
+</pre></div>
+
+<h2>
+<a name="backends" class="anchor" href="#backends"><span class="octicon octicon-link"></span></a>Backends</h2>
+
+<p>Backends for the Authentication Snaplet are pluggable. Some of the current options include a flat JSON file and PostgreSQL.</p>
+
+<h3>
+<a name="json-file" class="anchor" href="#json-file"><span class="octicon octicon-link"></span></a>JSON File</h3>
+
+<p>The default backend (given when you run <code>snap init</code>) is a flat JSON file. It is useful for examining how the system works, but should be replaced by the PostgreSQL backend or another database in production. One reason for this is that the users are stored in a flat file and this can cause issues.</p>
+
+<h4>
+<a name="init-with-json" class="anchor" href="#init-with-json"><span class="octicon octicon-link"></span></a>Init with JSON</h4>
+
+<p>To initialize Auth with a JSON backend we will need to add the following import.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth.Backends.JsonFile</span>
+</pre></div>
+
+<p>Then we can use <code>initJsonFileAuthManager</code> to create the Auth backend inside of our app init code:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">s</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"sess"</span> <span class="n">sess</span> <span class="o">$</span>
+       <span class="n">initCookieSessionManager</span> <span class="s">"site_key.txt"</span> <span class="s">"sess"</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3600</span><span class="p">)</span>
+<span class="nf">a</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"auth"</span> <span class="n">auth</span> <span class="o">$</span>
+       <span class="n">initJsonFileAuthManager</span> <span class="n">defAuthSettings</span> <span class="n">sess</span> <span class="s">"users.json"</span>
+</pre></div>
+
+<p>Remember that <code>nestSnaplet</code> takes a <code>ByteString</code> (the name of our snaplet), a Lensed Snaplet value (the ones we created when we ran <code>mkLenses</code> in <code>Application.hs</code>), and an init function.</p>
+
+<p><code>initJsonFileAuthManager</code> takes an <code>AuthSettings</code>, the Lensed Session Snaplet and the filepath we want to use to store the users.</p>
+
+<h3>
+<a name="postgresql" class="anchor" href="#postgresql"><span class="octicon octicon-link"></span></a>PostgreSQL</h3>
+
+<p>PostgresSQL is one of the other backends available. It is more robust than the JSON file. The Postgres Chapter has more information on configuration.</p>
+
+<h4>
+<a name="snaplet-postgresql-simple" class="anchor" href="#snaplet-postgresql-simple"><span class="octicon octicon-link"></span></a>snaplet-postgresql-simple</h4>
+
+<p>Add this to <code>Build-depends</code> in our <code>.cabal</code> file.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">snaplet</span><span class="o">-</span><span class="n">postgresql</span><span class="o">-</span><span class="n">simple</span> <span class="o">&gt;=</span> <span class="mf">0.4</span>     <span class="o">&amp;&amp;</span> <span class="o">&lt;</span> <span class="mf">0.5</span>
+</pre></div>
+
+<h4>
+<a name="adding-to-app-definition-1" class="anchor" href="#adding-to-app-definition-1"><span class="octicon octicon-link"></span></a>Adding to App Definition</h4>
+
+<p>We need to import the snaplet in <code>Application.hs</code>:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">import</span> <span class="nn">Snap.Snaplet.PostgresqlSimple</span>
+</pre></div>
+
+<p>Then we can add <code>snaplet-postgresql-simple</code> to our app definition as such.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">data</span> <span class="kt">App</span> <span class="ow">=</span> <span class="kt">App</span>
+    <span class="p">{</span> <span class="n">_heist</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="p">(</span><span class="kt">Heist</span> <span class="kt">App</span><span class="p">)</span>
+    <span class="p">,</span> <span class="n">_sess</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="kt">SessionManager</span>
+    <span class="p">,</span> <span class="n">_db</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="kt">Postgres</span>
+    <span class="p">,</span> <span class="n">_auth</span> <span class="ow">::</span> <span class="kt">Snaplet</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span>
+    <span class="p">}</span>
+</pre></div>
+
+<h4>
+<a name="initializing-the-backend" class="anchor" href="#initializing-the-backend"><span class="octicon octicon-link"></span></a>Initializing the Backend</h4>
+
+<p>In <code>Site.hs</code> we will add a few imports.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">import</span>           <span class="nn">Snap.Snaplet.Auth.Backends.PostgresqlSimple</span>
+<span class="kr">import</span>           <span class="nn">Snap.Snaplet.PostgresqlSimple</span>
+</pre></div>
+
+<p>Then we can initialize the database with <code>pgsInit</code> and the backend as part of the Auth initialization.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">app</span> <span class="ow">::</span> <span class="kt">SnapletInit</span> <span class="kt">App</span> <span class="kt">App</span>
+<span class="nf">app</span> <span class="ow">=</span> <span class="n">makeSnaplet</span> <span class="s">"app"</span> <span class="s">"An snaplet example application."</span> <span class="kt">Nothing</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">h</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">""</span> <span class="n">heist</span> <span class="o">$</span> <span class="n">heistInit</span> <span class="s">"templates"</span>
+    <span class="n">s</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"sess"</span> <span class="n">sess</span> <span class="o">$</span>
+           <span class="n">initCookieSessionManager</span> <span class="s">"site_key.txt"</span> <span class="s">"sess"</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">d</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"db"</span> <span class="n">db</span> <span class="n">pgsInit</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">nestSnaplet</span> <span class="s">"auth"</span> <span class="n">auth</span> <span class="o">$</span>
+           <span class="n">initPostgresAuth</span> <span class="n">sess</span> <span class="n">d</span>
+    <span class="n">addRoutes</span> <span class="n">routes</span>
+    <span class="n">addAuthSplices</span> <span class="n">h</span> <span class="n">auth</span>
+    <span class="n">return</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">h</span> <span class="n">s</span> <span class="n">d</span> <span class="n">a</span>
+</pre></div>
+
+<h4>
+<a name="instances" class="anchor" href="#instances"><span class="octicon octicon-link"></span></a>Instances</h4>
+
+<p>After setting up the initialization we can write an instance that is much like our regular instance:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">instance</span> <span class="kt">HasPostgres</span> <span class="p">(</span><span class="kt">Handler</span> <span class="n">b</span> <span class="kt">App</span><span class="p">)</span> <span class="kr">where</span>
+    <span class="n">getPostgresState</span> <span class="ow">=</span> <span class="n">with</span> <span class="n">db</span> <span class="n">get</span>
+</pre></div>
+
+<p>The new instance will be used inside of handlers with Auth type signatures.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="kr">instance</span> <span class="kt">HasPostgres</span> <span class="p">(</span><span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">))</span> <span class="kr">where</span>
+    <span class="n">getPostgresState</span> <span class="ow">=</span> <span class="n">withTop</span> <span class="n">db</span> <span class="n">get</span>
+</pre></div>
+
+<p>These instances wil need a <code>{-# LANGUAGE FlexibleInstances #-}</code> declaration at the top of <code>Site.hs</code>.</p>
+
+<h2>
+<a name="restricted-routes" class="anchor" href="#restricted-routes"><span class="octicon octicon-link"></span></a>Restricted Routes</h2>
+
+<p>To restrict a route to only logged in users, we can use <code>requireUser</code>. First we'll add a route at <code>/restricted</code> that uses the auth snaplet:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="p">(</span><span class="s">"/restricted"</span><span class="p">,</span> <span class="n">with</span> <span class="n">auth</span> <span class="n">restrictedHandler</span><span class="p">)</span>
+</pre></div>
+
+<p>Then we'll write the handler with the auth snaplet in the type signature and a call to <code>requireUser</code>. <code>requireUser</code> takes a lensed auth snaplet value, such as <code>auth</code>, a handler to execute if there is no user logged in and a handler to execute if there is a user logged in.</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">restrictedHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">restrictedHandler</span> <span class="ow">=</span> <span class="n">requireUser</span> <span class="n">auth</span> <span class="n">noUserHandler</span> <span class="n">userExistsHandler</span>
+</pre></div>
+
+<p>We'll write each of these handlers as a simple ByteString response:</p>
+
+<div class="highlight highlight-haskell"><pre><span class="nf">noUserHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">noUserHandler</span> <span class="ow">=</span> <span class="n">writeBS</span> <span class="s">"No User"</span>
+
+<span class="nf">userExistsHandler</span> <span class="ow">::</span> <span class="kt">Handler</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">AuthManager</span> <span class="kt">App</span><span class="p">)</span> <span class="nb">()</span>
+<span class="nf">userExistsHandler</span> <span class="ow">=</span> <span class="n">writeBS</span> <span class="s">"User Exists"</span>
+</pre></div>
+
+<p>Note that <code>requireUser</code> just checks to see if there is a user_id in the session. This means there is no database cost.</p>
+      </article>
+      <!-- FOOTER  -->
+      <div id="footer_wrap" class="outer">
+        <footer class="inner">
+          <p class="copyright">Snap for Beginners maintained by <a href="https://github.com/ChristopherBiscardi">ChristopherBiscardi</a></p>
+        </footer>
+      </div>
+
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("UA-46878058-2");
+          pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
+
+
+    </body>
+    </html>
