@@ -1,44 +1,67 @@
 
 # Scaffolding a New Project
 
--- note: The code for a scaffolding app is already present in code/scaffold-app
+[GitHub Repo][git-scaffolding]
 
-Now that we have Snap installed we can use the CLI to scaffold a new project.
+We've created an awesome new startup called Odoo. It's a new
+microblogging service. The first thing we'll do is scaffold a new Snap
+app to start the platform.
 
 Create a new directory:
 
 ```bash
-mkdir scaffold-app
+mkdir oodo
 ```
 
-Then enter the directory and initialize a "default" project:
+Then enter the directory and initialize a project with the `default`
+template:
 
 ```bash
-cd scaffold-app
+cd oodo
 cabal sandbox init
 snap init default
 ```
 
-We now have a default Snap app with a basic user authentication scheme.
-Install the app by running:
+We have initialized a sandbox as well as the project
+template. Sandboxes help to separate different projects with different
+dependencies from each other. It is not strictly necessary that we use
+a sandbox for this project, but it is a good practice that will help
+us a great deal in the future by separating the dependencies for each
+project.
+
+We now have a default Snap app with a basic user authentication
+scheme. Build the app by running:
 
 ```bash
-cabal install
+cabal build --only-dependencies
 ```
 
-This uses the `scaffold-app.cabal` file to install dependencies. We can run it the app by running:
+This uses the `odoo.cabal` file in the current directory to install
+our dependencies. We can build an executable by running `cabal build`
+again without the `--only-dependencies` flag:
 
 ```bash
-.cabal-sandbox/bin/scaffold-app
+cabal build
+```
+
+We can now run the app by with:
+
+TODO: Check this command for accuracy
+
+```bash
+.cabal-sandbox/bin/odoo
 ```
 
 The server defaults to port 8000, so by navigating to `localhost:8000` we should
 see a running instance of the app. From the homepage, we can create a user and
 then log in to see the demo website.
 
-## code/scaffold-app
+## code/odoo
 
-The Scaffolding code distributed with this book (in `code/scaffold-app`) is modified in that it contains additional comments. The two files we are concerned with are `src/Application.hs` and `src/Site.hs`. `src/Application.hs` includes some basic setup code for the Authorization, Session and Heist Snaplets. We will go into more detail with Snaplets in later chapters.
+The two files we are concerned with are `src/Application.hs` and
+`src/Site.hs`. `src/Application.hs` includes some basic setup code for
+the Authorization, Session and Heist Snaplets. We will go into more
+detail with Snaplets in later chapters.
 
 `src/Site.hs` is where most of our development will happen. It includes the
 routing, initialization and some route handlers. The handlers can be split out
@@ -46,19 +69,27 @@ into other files, but we will keep them in a single file for now.
 
 ## src/Application.hs
 
-`src/Application.hs` starts off with something that tells our compiler that we are using an extension to the haskell language[^prag]. In this case, it is the `TemplateHaskell` extension. This won't actually affect us much, as the only place we use Template Haskell is in the call to `makeLenses` later in this file.
+`src/Application.hs` starts off with something that tells our compiler that we
+are using an extension to the haskell language[^prag]. In this case, it is the
+`TemplateHaskell` extension. This won't actually affect us much, as the only
+place we use Template Haskell is in the call to `makeLenses` later in this file.
 
 ```haskell
 {-# LANGUAGE TemplateHaskell #-}
 ```
 
-The next bit of code defines the module for this file. We will use this in our `src/Site.hs` to import this file. In this case, `import Application` is what we will write.
+The next bit of code defines the module for this file. We will use this in our
+`src/Site.hs` to import this file. In this case, `import Application` is what
+we will write.
 
 ```haskell
 module Application where
 ```
 
-The imports list is next and defines some of the modules we'll be using in our code in this file. `Control.Lens` will be used as part of our call to `makeLenses` and the rest are Snaplet modules, since we are defining some of our Snaplet code in this file.
+The imports list is next and defines some of the modules we'll be using in our
+code in this file. `Control.Lens` will be used as part of our call to
+`makeLenses` and the rest are Snaplet modules, since we are defining some of
+our Snaplet code in this file.
 
 ```haskell
 import Control.Lens
@@ -68,9 +99,14 @@ import Snap.Snaplet.Auth
 import Snap.Snaplet.Session
 ```
 
-Next is the most important part of this file, our `App` datatype[^rec]. This defines the Snaplets we will be using as part of a data structure so that we can initialize and access them later on in `src/Site.hs`.
+Next is the most important part of this file, our `App` datatype[^rec]. This
+defines the Snaplets we will be using as part of a data structure so that we
+can initialize and access them later on in `src/Site.hs`.
 
-We are using the Heist (`_heist`), Session (`_sess`) and Authentication (`_auth`) Snaplets. Each comes with it's own type declaration so that we can be assured that we are putting the right Snaplets in the right places when we initialize our app.
+We are using the Heist (`_heist`), Session (`_sess`) and Authentication
+(`_auth`) Snaplets. Each comes with it's own type declaration so that we can be
+assured that we are putting the right Snaplets in the right places when we
+initialize our app.
 
 ```haskell
 data App = App
@@ -80,20 +116,30 @@ data App = App
     }
 ```
 
-`makeLenses` is next. Basically, this automatically creates getters/setters and some other things for us so we don't have to write a bunch of boilerplate. We are calling it on our `App` datatype, so when we use our Snaplets in `src/Site.hs` we can call them without the underscores in front (ie: `_heist` becomes `heist`).
+`makeLenses` is next. Basically, this automatically creates getters/setters and
+some other things for us so we don't have to write a bunch of boilerplate. We
+are calling it on our `App` datatype, so when we use our Snaplets in
+`src/Site.hs` we can call them without the underscores in front (ie: `_heist`
+becomes `heist`).
 
 ```haskell
 makeLenses ''App
 ```
 
-Writing an instance for our Heist Snaplet allows us to write less boilerplate code. If we didn't write this instance, we would have to write `with heist dosomething` whenever we wanted to render a template. The instance basically tells the compiler how to access the Heist Snaplet when we are in a route, so it can figure things out for us.
+Writing an instance of `HasHeist` for our App allows us to write less
+boilerplate code. If we didn't write this instance, we would have to write
+`with heist doSomething` whenever we wanted to render a template. The instance
+defines how to access the Heist Snaplet when we are in a route. In this case,
+since `App` is also a Snaplet, we can use `subSnaplet heist`.
 
 ```haskell
 instance HasHeist App where
     heistLens = subSnaplet heist
 ```
 
-This is a simple alias. `AppHandler` and `Handler App App` mean exactly the same thing. If we were writing a handler for a Snap route, either one of these would be acceptable as the type signature.
+This is a simple alias. `AppHandler` and `Handler App App` mean exactly the same
+thing. If we were writing a handler for a URL, either one of these would
+be acceptable as the type signature.
 
 ```haskell
 type AppHandler = Handler App App
@@ -103,7 +149,14 @@ type AppHandler = Handler App App
 
 ### Language Pragma
 
-`Site.hs` starts off with an extension to the Haskell language[^prag]. This one makes it easier to work with string literals in our source code files. Typically, a String literal is of type `String`. Using `OverloadedStrings` allows us to write string literals (a string literal is `"like this"`) of type `Text`.
+`Site.hs` starts off with an extension to the Haskell language[^prag]. This one
+makes it easier to work with string literals in our source code files.
+Typically, a String literal is of type `String`. Using `OverloadedStrings`
+allows us to write string literals (a string literal is `"like this"`) of type
+`Text` or other types that implement the `isString` type class. Their type is
+determined by the function that uses them. So if we use a function that has
+`myFunction :: Text -> Text` as the type signature we could use it as
+`myFunction "My Awesome String (which is of type Text)"`.
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
@@ -111,7 +164,8 @@ type AppHandler = Handler App App
 
 ### Module Declaration and Imports
 
-Then we declare our module (`Site`) and a few imports. This includes the `src/Application.hs` module, which is imported as `import Application`.
+Then we declare our module (`Site`) and a few imports. This includes the
+`src/Application.hs` module, which is imported as `import Application`.
 
 ```haskell
 module Site
@@ -153,13 +207,16 @@ The type signature breaks down into two pieces split by `->`. The first:
 Maybe T.Text
 ```
 
-is the type of the argument to this function. It says that we might get some text or we might get nothing. The second type:
+is the type of the argument to this function. It says that we might get some
+text or we might get nothing. The second type:
 
 ```haskell
 Handler App (AuthManager App) ()
 ```
 
-is what the function returns. In this case it returns a Snap handler that uses the Authentication Snaplet. A basic handler (without Authentication) has the type `Handler App App ()`.[^auththing]
+is what the function returns. In this case it returns a Snap handler that uses
+the Authentication Snaplet. A basic handler (without Authentication) has the
+type `Handler App App ()`.[^auththing]
 
 The next part starts the function definition.
 
@@ -167,22 +224,33 @@ The next part starts the function definition.
 handleLogin authError = heistLocal (I.bindSplices errs) $ render "login"
 ```
 
-`handleLogin` takes one argument, which we've named `authError`. `heistLocal` is a function that lets us bind custom splices[^splices] to be used in the `"login"` template and then use them.
+`handleLogin` takes one argument, which we've named `authError`. `heistLocal` is
+a function that lets us bind custom splices[^splices] to be used in the
+`"login"` template and then use them.
 
 `errs` defines our custom splice:
 ```haskell
 errs = maybe noSplices splice authError
 ```
 
-`maybe` takes a default values (`noSplices` in this case), our custom splice (defined as `splice` on the line below) and the `authError`. If the `authError` is `Nothing` (no errors) we use `noSplices`, otherwise we use our custom splice.
+`maybe` takes a default values (`noSplices` in this case), our custom splice
+(defined as `splice` on the line below) and the `authError`. If the `authError`
+is `Nothing` (no errors) we use `noSplices`, otherwise we use our custom splice.
+
 ```haskell
 splice err = "loginError" ## I.textSplice err
 ```
-Here we define our splice. If the `authError` exists it gets passed to this function as `err`. We then bind the name `"loginError"` to our `textSplice`, which we created from the `err` text. The splice we just created displays the error using the tag `<loginError/>` in our heist templates (specifically `snaplets/heist/templates/_login.tpl`).
+
+Here we define our splice. If the `authError` exists it gets passed to this
+function as `err`. We then bind the name `"loginError"` to our `textSplice`,
+which we created from the `err` text. The splice we just created displays the
+error using the tag `<loginError/>` in our heist templates (specifically
+`snaplets/heist/templates/_login.tpl`).
 
 ### handleLoginSubmit
 
-`handleLoginSubmit` handles retrieving values from a login form submission using the Authentication Snaplet's `loginUser` function.
+`handleLoginSubmit` handles retrieving values from a login form submission using
+the Authentication Snaplet's `loginUser` function.
 
 ```haskell
 handleLoginSubmit :: Handler App (AuthManager App) ()
@@ -193,7 +261,9 @@ handleLoginSubmit =
     err = Just "Unknown user or password"
 ```
 
-`loginUser` takes the names of the username and password form fields (`"login"` and `"password"` in our case), the "Remember Me" field (In our case,  `Nothing` since we aren't using one), a failure function and a success function.
+`loginUser` takes the names of the username and password form fields (`"login"`
+and `"password"` in our case), the "Remember Me" field (In our case,  `Nothing`
+since we aren't using one), a failure function and a success function.
 
 Our failure function is
 
@@ -201,26 +271,34 @@ Our failure function is
 (\_ -> handleLogin err)
 ```
 
-Which is an anonymous function that takes anything (the `_` is Haskell for "we don't care what this argument is", in this case because we aren't using any arguments) and returns `handleLogin` with the error value `err`.
+Which is an anonymous function that takes anything (the `_` is Haskell for "we
+don't care what this argument is", in this case because we aren't using any
+arguments) and returns `handleLogin` with the error value `err`.
 
-`err` is `Just "Unknown user or password"`. We put `Just` in front of the value because as we saw before, `handleLogin` takes `Maybe T.Text` as an argument. The two possible values being `Nothing` and `Just "some text"`.
+`err` is `Just "Unknown user or password"`. We put `Just` in front of the value
+because as we saw before, `handleLogin` takes `Maybe T.Text` as an argument.
+The two possible values being `Nothing` and `Just "some text"`.
 
-The success function, `(redirect "/")` simply redirects a successful login to the homepage.
+The success function, `(redirect "/")` simply redirects a successful login to
+the homepage.
 
 ### handleLogout
 
-`handleLogout` uses the Authentication Snaplet's `logout` function and then redirects the user to the homepage.
+`handleLogout` uses the Authentication Snaplet's `logout` function and then
+redirects the user to the homepage.
 
 ```haskell
 handleLogout :: Handler App (AuthManager App) ()
 handleLogout = logout >> redirect "/"
 ```
 
-The `>>` operator sequences the two functions, discarding any values produced by `logout`.
+The `>>` operator sequences the two functions, discarding any values produced
+by `logout`.
 
 ### handleNewUser
 
-`handleNewUser` splits a request into two different functions for `GET` and `POST`.
+`handleNewUser` splits a request into two different functions for `GET` and
+`POST`.
 
 ```haskell
 handleNewUser :: Handler App (AuthManager App) ()
@@ -230,13 +308,17 @@ handleNewUser = method GET handleForm <|> method POST handleFormSubmit
     handleFormSubmit = registerUser "login" "password" >> redirect "/"
 ```
 
-For a `GET` request, we use `handleForm`, which just renders the `"new_user"` template.
+For a `GET` request, we use `handleForm`, which just renders the `"new_user"`
+template.
 
-For a `POST` request, we use the Authentication Snaplet's `registerUser`. `registerUser` takes the username and password fields (In our case `"login"` and `"password"`).
+For a `POST` request, we use the Authentication Snaplet's `registerUser`.
+`registerUser` takes the username and password fields (In our case `"login"`
+and `"password"`).
 
 ### Routing
 
-Our routes are defined next. `with auth` is how we say "this route is going to be using the Authentication Snaplet's functions".
+Our routes are defined next. `with auth` is how we say "this route is going to
+be using the Authentication Snaplet's functions".
 
 ```haskell
 routes :: [(ByteString, Handler App App ())]
@@ -266,12 +348,18 @@ app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     return $ App h s a
 ```
 
-First we say that `app` will hold our initialized `App` (from `src/Application.hs`). `makeSnaplet` takes an id (`"app"` in this case), a description, a `Maybe (IO FilePath)` (which we'll just set to `Nothing` since this isn't a packaged Snaplet) and an Initializer.
+First we say that `app` will hold our initialized `App` (from
+`src/Application.hs`). `makeSnaplet` takes an id (`"app"` in this case), a
+description, a `Maybe (IO FilePath)` (which we'll just set to `Nothing` since
+this isn't a packaged Snaplet) and an Initializer.
 
 In this case our Initializer is our `do` statement.
 
-Common to all of the Snaplets we are about to initialize is `nestSnaplet`. `nestSnaplet` takes a root url for any routes defined in the Snaplet, the name of the Snaplet as
-defined in `src/Application.hs` without the underscore (also known as a Lens because we ran `makeLenses` on it), and the Snaplet specific initializer function.
+Common to all of the Snaplets we are about to initialize is `nestSnaplet`.
+`nestSnaplet` takes a root url for any routes defined in the Snaplet, the name
+of the Snaplet as defined in `src/Application.hs` without the underscore (also
+known as a Lens because we ran `makeLenses` on it), and the Snaplet specific
+initializer function.
 
 The first thing we do is initialize our Heist Snaplet.
 
@@ -279,7 +367,12 @@ The first thing we do is initialize our Heist Snaplet.
 h <- nestSnaplet "" heist $ heistInit "templates"
 ```
 
-Using a call to `nestSnaplet` we pass in: The root path for the routes (`""`), `heist` (which is the Lens value we made from `_heist`) and the result of `heistInit "templates"`, which is our Heist initializer. `heistInit`'s argument is the folder that we are storing our templates in (in this case the Heist Snaplet is located in `snaplets/heist` and our templates are in `snaplets/heist/templates` so we pass in `"templates"`).
+Using a call to `nestSnaplet` we pass in: The root path for the routes (`""`),
+`heist` (which is the Lens value we made from `_heist`) and the result of
+`heistInit "templates"`, which is our Heist initializer. `heistInit`'s argument
+is the folder that we are storing our templates in (in this case the Heist
+Snaplet is located in `snaplets/heist` and our templates are in
+`snaplets/heist/templates` so we pass in `"templates"`).
 
 The next Snaplet to be initialized is the Session Snaplet. This will be used with the Authentication Snaplet to give us sessions.
 

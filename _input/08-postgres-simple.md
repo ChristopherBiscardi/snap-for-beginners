@@ -72,7 +72,7 @@ return $ App h s d a
 
 ### Configuration
 
-By default, Snaplets create their filesystem on first run of the application *if there are no files already there*. The Postgres files live in `snaplets/postgresql-simple/devel.cfg` and look like this by default:
+By default, Snaplets create their filesystem on first run of the application *if there are no files already there*. The Postgres files live in `snaplets/postgresql-simple/` and look like this by default:
 
 ```haml
 host = "localhost"
@@ -105,22 +105,13 @@ instance HasPostgres (Handler b App) where
     getPostgresState = with db get
 ```
 
-To write this instance we need to import `get` from `Control.Monad.State.Class`:
+## Getting Data In
 
-```haskell
-import Control.Monad.State.Class
-```
+### ToRow
 
-### psql
+### ToField
 
-Since the defaults are a role of `postgres` and a database `testdb`, you may need to run these commands in `psql` to set up Postgres.
-
-```psql
-CREATE ROLE postgres LOGIN;
-CREATE DATABASE testdb;
-```
-
-## Querying
+## Getting Data Out
 
 
 ### query
