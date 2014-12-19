@@ -558,5 +558,3 @@ That's it for the default template. From here use the other chapters to learn mo
 [^rec]: The way we are writing this datatype is called "Record Syntax".
 [^auththing]: More on this in the Authentication and Routing chapters.
 [^splices]: More on splices in the Heist chapter
-
-[snaphack]: http://hackage.haskell.org/package/snap-0.13.2.2/docs/Snap-Snaplet-Auth.html#t:AuthSettings
