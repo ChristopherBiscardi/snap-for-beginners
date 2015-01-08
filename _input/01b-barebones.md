@@ -1,8 +1,8 @@
 
 ## Hello Barebones
 
-[GitHub Repo][barebones]
-Docker Image: `snapforbeginners/barebones`
+* [GitHub Repo][sfb-git-barebones]
+* Docker Image: `snapforbeginners/barebones`
 
 Handling a single request is nice, but in the real world we will be
 using many more. Snap comes with a couple template projects, one of
@@ -71,4 +71,4 @@ construct the vast majority of our routes in the future.
 3. Add a route to the site that will show an error (so that we don't
    expose handler errors to users).
 
-Answers in the [GitHub Repo][barebones]
+Answers in the [GitHub Repo][sfb-git-barebones]

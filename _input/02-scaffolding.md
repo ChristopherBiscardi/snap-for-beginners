@@ -1,67 +1,49 @@
 
 # Scaffolding a New Project
 
-[GitHub Repo][git-scaffolding]
+* [GitHub Repo][sfb-git-scaffolding]
+* Docker Image: `snapforbeginners/default`
 
 We've created an awesome new startup called Odoo. It's a new
 microblogging service. The first thing we'll do is scaffold a new Snap
 app to start the platform.
 
-Create a new directory:
+Clone the default repo, which is the default snap template with an
+additional Dockerfile. We are using a git repo for consistency but the
+results should be the same if you use the templates described in the
+project templating chapter:
 
 ```bash
-mkdir oodo
+git clone https://github.com/snapforbeginners/default.git odoo
 ```
-
-Then enter the directory and initialize a project with the `default`
-template:
-
-```bash
-cd oodo
-cabal sandbox init
-snap init default
-```
-
-We have initialized a sandbox as well as the project
-template. Sandboxes help to separate different projects with different
-dependencies from each other. It is not strictly necessary that we use
-a sandbox for this project, but it is a good practice that will help
-us a great deal in the future by separating the dependencies for each
-project.
 
 We now have a default Snap app with a basic user authentication
-scheme. Build the app by running:
+scheme. Then enter the directory and build the app using Docker.
 
 ```bash
-cabal build --only-dependencies
+cd odoo
+docker build -t odoo .
 ```
 
 This uses the `odoo.cabal` file in the current directory to install
-our dependencies. We can build an executable by running `cabal build`
-again without the `--only-dependencies` flag:
+our dependencies and the snap application itself in a new image. Since
+we're using docker, we can now run the app on port 8000 with:
 
 ```bash
-cabal build
+docker run -it -p 8000:8000 odoo
 ```
 
-We can now run the app by with:
-
-TODO: Check this command for accuracy
-
-```bash
-.cabal-sandbox/bin/odoo
-```
-
-The server defaults to port 8000, so by navigating to `localhost:8000` we should
-see a running instance of the app. From the homepage, we can create a user and
-then log in to see the demo website.
+Snap defaults to port 8000, so by mapping port 8000 in the container
+to port 8000 on our host (`-p 8000:8000`), we can see the app at
+`localhost:8000`. From the homepage, we can create a user and then log
+in to see the demo website.
 
 ## code/odoo
 
 The two files we are concerned with are `src/Application.hs` and
 `src/Site.hs`. `src/Application.hs` includes some basic setup code for
 the Authorization, Session and Heist Snaplets. We will go into more
-detail with Snaplets in later chapters.
+detail on Snaplets in later chapters.
 
 `src/Site.hs` is where most of our development will happen. It includes the
 routing, initialization and some route handlers. The handlers can be split out
@@ -119,7 +101,7 @@ data App = App
 `makeLenses` is next. Basically, this automatically creates getters/setters and
 some other things for us so we don't have to write a bunch of boilerplate. We
 are calling it on our `App` datatype, so when we use our Snaplets in
-`src/Site.hs` we can call them without the underscores in front (ie: `_heist`
+`src/Site.hs` we call them without the underscores in front (ie: `_heist`
 becomes `heist`).
 
 ```haskell
@@ -129,8 +111,9 @@ makeLenses ''App
 Writing an instance of `HasHeist` for our App allows us to write less
 boilerplate code. If we didn't write this instance, we would have to write
 `with heist doSomething` whenever we wanted to render a template. The instance
-defines how to access the Heist Snaplet when we are in a route. In this case,
-since `App` is also a Snaplet, we can use `subSnaplet heist`.
+defines how to access the Heist Snaplet when we are in a route
+function. In this case, since `App` is also a Snaplet, we can use
+`subSnaplet heist`.
 
 ```haskell
 instance HasHeist App where
@@ -197,7 +180,7 @@ Next, we set up the rendering of the login form template (with errors).
 handleLogin :: Maybe T.Text -> Handler App (AuthManager App) ()
 handleLogin authError = heistLocal (I.bindSplices errs) $ render "login"
   where
-    errs = maybe noSplices splice authError
+    errs = maybe mempty splice authError
     splice err = "loginError" ## I.textSplice err
 ```
 
@@ -208,7 +191,7 @@ Maybe T.Text
 ```
 
 is the type of the argument to this function. It says that we might get some
-text or we might get nothing. The second type:
+`Text` or we might get `Nothing`. The second type:
 
 ```haskell
 Handler App (AuthManager App) ()
@@ -230,12 +213,12 @@ a function that lets us bind custom splices[^splices] to be used in the
 
 `errs` defines our custom splice:
 ```haskell
-errs = maybe noSplices splice authError
+errs = maybe memtpy splice authError
 ```
 
-`maybe` takes a default values (`noSplices` in this case), our custom splice
+`maybe` takes a default values (`mempty` in this case), our custom splice
 (defined as `splice` on the line below) and the `authError`. If the `authError`
-is `Nothing` (no errors) we use `noSplices`, otherwise we use our custom splice.
+is `Nothing` (no errors) we use `mempty`, otherwise we use our custom splice.
 
 ```haskell
 splice err = "loginError" ## I.textSplice err
@@ -554,7 +537,3 @@ The `new_user.tpl` template is very similar to `login.tpl`. It applies the base 
 
 That's it for the default template. From here use the other chapters to learn more about various pieces of Snap. Later in the book we will go over Digestive Functors, which can be used to render and process forms with validation, and Heist, which has more splices (such as Markdown) an Interpreted and a Compiled library.
 
-[^prag]: This is a Language Pragma. There is plenty of information on them online if you search for "haskell language pragmas".
-[^rec]: The way we are writing this datatype is called "Record Syntax".
-[^auththing]: More on this in the Authentication and Routing chapters.
-[^splices]: More on splices in the Heist chapter
