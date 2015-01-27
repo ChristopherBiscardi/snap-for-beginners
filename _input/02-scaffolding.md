@@ -120,9 +120,9 @@ instance HasHeist App where
     heistLens = subSnaplet heist
 ```
 
-This is a simple alias. `AppHandler` and `Handler App App` mean exactly the same
-thing. If we were writing a handler for a URL, either one of these would
-be acceptable as the type signature.
+This is a simple alias. `AppHandler` and `Handler App App` mean
+exactly the same thing. If we were writing a handler for a URL, either
+one of these would be acceptable as the type signature.
 
 ```haskell
 type AppHandler = Handler App App
@@ -132,14 +132,15 @@ type AppHandler = Handler App App
 
 ### Language Pragma
 
-`Site.hs` starts off with an extension to the Haskell language[^prag]. This one
-makes it easier to work with string literals in our source code files.
-Typically, a String literal is of type `String`. Using `OverloadedStrings`
-allows us to write string literals (a string literal is `"like this"`) of type
-`Text` or other types that implement the `isString` type class. Their type is
-determined by the function that uses them. So if we use a function that has
-`myFunction :: Text -> Text` as the type signature we could use it as
-`myFunction "My Awesome String (which is of type Text)"`.
+`Site.hs` starts off with an extension to the Haskell
+language[^prag]. This one makes it easier to work with string literals
+in our source code files.  Typically, a String literal is of type
+`String`. Using `OverloadedStrings` allows us to write string literals
+(a string literal is `"like this"`) of type `Text` or other types that
+implement the `isString` type class. Their type is determined by the
+function that uses them. So if we use a function that has `myFunction
+:: Text -> Text` as the type signature we could use it as `myFunction
+"My Awesome String (which is of type Text)"`.
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
@@ -147,8 +148,9 @@ determined by the function that uses them. So if we use a function that has
 
 ### Module Declaration and Imports
 
-Then we declare our module (`Site`) and a few imports. This includes the
-`src/Application.hs` module, which is imported as `import Application`.
+Then we declare our module (`Site`) and a few imports. This includes
+the `src/Application.hs` module, which is imported as `import
+Application`.
 
 ```haskell
 module Site
@@ -184,22 +186,23 @@ handleLogin authError = heistLocal (I.bindSplices errs) $ render "login"
     splice err = "loginError" ## I.textSplice err
 ```
 
-The type signature breaks down into two pieces split by `->`. The first:
+The type signature breaks down into two pieces split by `->`. The
+first:
 
 ```haskell
 Maybe T.Text
 ```
 
-is the type of the argument to this function. It says that we might get some
-`Text` or we might get `Nothing`. The second type:
+is the type of the argument to this function. It says that we might
+get some `Text` or we might get `Nothing`. The second type:
 
 ```haskell
 Handler App (AuthManager App) ()
 ```
 
-is what the function returns. In this case it returns a Snap handler that uses
-the Authentication Snaplet. A basic handler (without Authentication) has the
-type `Handler App App ()`.[^auththing]
+is what the function returns. In this case it returns a Snap handler
+that uses the Authentication Snaplet. A basic handler (without
+Authentication) has the type `Handler App App ()`.[^auththing]
 
 The next part starts the function definition.
 
@@ -207,33 +210,35 @@ The next part starts the function definition.
 handleLogin authError = heistLocal (I.bindSplices errs) $ render "login"
 ```
 
-`handleLogin` takes one argument, which we've named `authError`. `heistLocal` is
-a function that lets us bind custom splices[^splices] to be used in the
-`"login"` template and then use them.
+`handleLogin` takes one argument, which we've named
+`authError`. `heistLocal` is a function that lets us bind custom
+splices[^splices] to be used in the `"login"` template and then use
+them.
 
 `errs` defines our custom splice:
 ```haskell
 errs = maybe memtpy splice authError
 ```
 
-`maybe` takes a default values (`mempty` in this case), our custom splice
-(defined as `splice` on the line below) and the `authError`. If the `authError`
-is `Nothing` (no errors) we use `mempty`, otherwise we use our custom splice.
+`maybe` takes a default value (`mempty` in this case, which is the
+"empty" value), our custom splice (defined as `splice` on the line
+below) and the `authError`. If the `authError` is `Nothing` (no
+errors) we use `mempty`, otherwise we use our custom splice.
 
 ```haskell
 splice err = "loginError" ## I.textSplice err
 ```
 
-Here we define our splice. If the `authError` exists it gets passed to this
-function as `err`. We then bind the name `"loginError"` to our `textSplice`,
-which we created from the `err` text. The splice we just created displays the
-error using the tag `<loginError/>` in our heist templates (specifically
-`snaplets/heist/templates/_login.tpl`).
+Here we define our splice. If the `authError` exists it gets passed to
+this function as `err`. We then bind the name `"loginError"` to our
+`textSplice`, which we created from the `err` text. The splice we just
+created displays the error using the tag `<loginError/>` in our heist
+templates (specifically `snaplets/heist/templates/_login.tpl`).
 
 ### handleLoginSubmit
 
-`handleLoginSubmit` handles retrieving values from a login form submission using
-the Authentication Snaplet's `loginUser` function.
+`handleLoginSubmit` handles retrieving values from a login form
+submission using the Authentication Snaplet's `loginUser` function.
 
 ```haskell
 handleLoginSubmit :: Handler App (AuthManager App) ()
@@ -244,9 +249,10 @@ handleLoginSubmit =
     err = Just "Unknown user or password"
 ```
 
-`loginUser` takes the names of the username and password form fields (`"login"`
-and `"password"` in our case), the "Remember Me" field (In our case,  `Nothing`
-since we aren't using one), a failure function and a success function.
+`loginUser` takes the names of the username and password form fields
+(`"login"` and `"password"` in our case), the "Remember Me" field (In
+our case, `Nothing` since we aren't using one), a failure function and
+a success function.
 
 Our failure function is
 
@@ -254,34 +260,36 @@ Our failure function is
 (\_ -> handleLogin err)
 ```
 
-Which is an anonymous function that takes anything (the `_` is Haskell for "we
-don't care what this argument is", in this case because we aren't using any
-arguments) and returns `handleLogin` with the error value `err`.
+Which is an anonymous function that takes anything (the `_` is Haskell
+for "we don't care what this argument is", in this case because we
+aren't using any arguments) and returns `handleLogin` with the error
+value `err`.
 
-`err` is `Just "Unknown user or password"`. We put `Just` in front of the value
-because as we saw before, `handleLogin` takes `Maybe T.Text` as an argument.
-The two possible values being `Nothing` and `Just "some text"`.
+`err` is `Just "Unknown user or password"`. We put `Just` in front of
+the value because as we saw before, `handleLogin` takes `Maybe T.Text`
+as an argument.  The two possible values being `Nothing` and `Just
+"some text"`.
 
-The success function, `(redirect "/")` simply redirects a successful login to
-the homepage.
+The success function, `(redirect "/")` simply redirects a successful
+login to the homepage.
 
 ### handleLogout
 
-`handleLogout` uses the Authentication Snaplet's `logout` function and then
-redirects the user to the homepage.
+`handleLogout` uses the Authentication Snaplet's `logout` function and
+then redirects the user to the homepage.
 
 ```haskell
 handleLogout :: Handler App (AuthManager App) ()
 handleLogout = logout >> redirect "/"
 ```
 
-The `>>` operator sequences the two functions, discarding any values produced
-by `logout`.
+The `>>` operator sequences the two functions, discarding any values
+produced by `logout`.
 
 ### handleNewUser
 
-`handleNewUser` splits a request into two different functions for `GET` and
-`POST`.
+`handleNewUser` splits a request into two different functions for
+`GET` and `POST`.
 
 ```haskell
 handleNewUser :: Handler App (AuthManager App) ()
@@ -291,17 +299,17 @@ handleNewUser = method GET handleForm <|> method POST handleFormSubmit
     handleFormSubmit = registerUser "login" "password" >> redirect "/"
 ```
 
-For a `GET` request, we use `handleForm`, which just renders the `"new_user"`
-template.
+For a `GET` request, we use `handleForm`, which just renders the
+`"new_user"` template.
 
-For a `POST` request, we use the Authentication Snaplet's `registerUser`.
-`registerUser` takes the username and password fields (In our case `"login"`
-and `"password"`).
+For a `POST` request, we use the Authentication Snaplet's
+`registerUser`.  `registerUser` takes the username and password fields
+(In our case `"login"` and `"password"`).
 
 ### Routing
 
-Our routes are defined next. `with auth` is how we say "this route is going to
-be using the Authentication Snaplet's functions".
+Our routes are defined next. `with auth` is how we say "this route is
+going to be using the Authentication Snaplet's functions".
 
 ```haskell
 routes :: [(ByteString, Handler App App ())]
@@ -332,16 +340,17 @@ app = makeSnaplet "app" "An snaplet example application." Nothing $ do
 ```
 
 First we say that `app` will hold our initialized `App` (from
-`src/Application.hs`). `makeSnaplet` takes an id (`"app"` in this case), a
-description, a `Maybe (IO FilePath)` (which we'll just set to `Nothing` since
-this isn't a packaged Snaplet) and an Initializer.
+`src/Application.hs`). `makeSnaplet` takes an id (`"app"` in this
+case), a description, a `Maybe (IO FilePath)` (which we'll just set to
+`Nothing` since this isn't a packaged Snaplet) and an Initializer.
 
 In this case our Initializer is our `do` statement.
 
-Common to all of the Snaplets we are about to initialize is `nestSnaplet`.
-`nestSnaplet` takes a root url for any routes defined in the Snaplet, the name
-of the Snaplet as defined in `src/Application.hs` without the underscore (also
-known as a Lens because we ran `makeLenses` on it), and the Snaplet specific
+Common to all of the Snaplets we are about to initialize is
+`nestSnaplet`.  `nestSnaplet` takes a root url for any routes defined
+in the Snaplet, the name of the Snaplet as defined in
+`src/Application.hs` without the underscore (also known as a Lens
+because we ran `makeLenses` on it), and the Snaplet specific
 initializer function.
 
 The first thing we do is initialize our Heist Snaplet.
@@ -350,23 +359,29 @@ The first thing we do is initialize our Heist Snaplet.
 h <- nestSnaplet "" heist $ heistInit "templates"
 ```
 
-Using a call to `nestSnaplet` we pass in: The root path for the routes (`""`),
-`heist` (which is the Lens value we made from `_heist`) and the result of
-`heistInit "templates"`, which is our Heist initializer. `heistInit`'s argument
-is the folder that we are storing our templates in (in this case the Heist
-Snaplet is located in `snaplets/heist` and our templates are in
-`snaplets/heist/templates` so we pass in `"templates"`).
+Using a call to `nestSnaplet` we pass in: The root path for the routes
+(`""`), `heist` (which is the Lens value we made from `_heist`) and
+the result of `heistInit "templates"`, which is our Heist
+initializer. `heistInit`'s argument is the folder that we are storing
+our templates in (in this case the Heist Snaplet is located in
+`snaplets/heist` and our templates are in `snaplets/heist/templates`
+so we pass in `"templates"`).
 
-The next Snaplet to be initialized is the Session Snaplet. This will be used with the Authentication Snaplet to give us sessions.
+The next Snaplet to be initialized is the Session Snaplet. This will
+be used with the Authentication Snaplet to give us sessions.
 
 ```haskell
 s <- nestSnaplet "sess" sess $
        initCookieSessionManager "site_key.txt" "sess" (Just 3600)
 ```
 
-Once again we call `nestSnaplet` with the base route and Lens value (`sess` because we used `_sess` in `src/Application.hs`). We then initialize a Cookie-based backend with `initCookieSessionManager`.
+Once again we call `nestSnaplet` with the base route and Lens value
+(`sess` because we used `_sess` in `src/Application.hs`). We then
+initialize a Cookie-based backend with `initCookieSessionManager`.
 
-`initCookieSessionManager` takes an encryption key (generated for us in `site_key.txt`), a name (`"sess"`) and a session timeout for replay attack protection (`Just 3600`).
+`initCookieSessionManager` takes an encryption key (generated for us
+in `site_key.txt`), a name (`"sess"`) and a session timeout for replay
+attack protection (`Just 3600`).
 
 The Authorization Snaplet is initialized next.
 
@@ -375,7 +390,11 @@ a <- nestSnaplet "auth" auth $
        initJsonFileAuthManager defAuthSettings sess "users.json"
 ```
 
-Again a call to `nestSnaplet`. The Authentication Snaplet has support for multiple backends, such as a flat json file or PostgreSQL. In this case, we initialize a JSON file with the default authentication settings (`defAuthSettings`), the Session Snaplet we just initialized (`sess`) and a filename to store the data in (`"users.json"`).
+Again a call to `nestSnaplet`. The Authentication Snaplet has support
+for multiple backends, such as a flat json file or PostgreSQL. In this
+case, we initialize a JSON file with the default authentication
+settings (`defAuthSettings`), the Session Snaplet we just initialized
+(`sess`) and a filename to store the data in (`"users.json"`).
 
 `defAuthSettings` contains a few fields:
 
@@ -387,7 +406,9 @@ asLockout = Nothing
 asSiteKey = "site_key.txt"
 ```
 
-Currently, `asMinPasswdLen` is not used by the Auth Snaplet. More information about these fields is availible in the Snap docs on [Hackage][snaphack].
+Currently, `asMinPasswdLen` is not used by the Auth Snaplet. More
+information about these fields is availible in the Snap docs on
+[Hackage][snaphack].
 
 Finally:
 
@@ -397,15 +418,20 @@ addAuthSplices h auth
 return $ App h s a
 ```
 
-We add our routes, add some splices from the Auth Snaplet and return an instance of the `App` definition from `src/Application.hs` that includes the heist (`h`), session (`s`) and auth (`a`) instances.
+We add our routes, add some splices from the Auth Snaplet and return
+an instance of the `App` definition from `src/Application.hs` that
+includes the heist (`h`), session (`s`) and auth (`a`) instances.
 
 ## snaplets/heist/templates/
 
-This folder holds our Heist templates. `snaplets/heist` is the base directory for the Heist Snaplet and templates is a directory that has been created so that Heist has access to our templates.
+This folder holds our Heist templates. `snaplets/heist` is the base
+directory for the Heist Snaplet and templates is a directory that has
+been created so that Heist has access to our templates.
 
 ### _login.tpl
 
-The `_login` template is rendered as a sub-piece of the `login.tpl` template.
+The `_login` template is rendered as a sub-piece of the `login.tpl`
+template.
 
 ```html
 <h1>Snap Example App Login</h1>
@@ -419,11 +445,16 @@ The `_login` template is rendered as a sub-piece of the `login.tpl` template.
 <p>Don't have a login yet? <a href="/new_user">Create a new user</a></p>
 ```
 
-`<loginError/>` is a splice we created in `handleLogin` in our `src/Site.hs` file. The splice, as we defined it, shows the error message if it exists.
+`<loginError/>` is a splice we created in `handleLogin` in our
+`src/Site.hs` file. The splice, as we defined it, shows the error
+message if it exists.
 
-We have two `<bind>` tags next. These function a bit like defining variables and are used later on in our template. Specifically in the `userform` section specified by the apply tag below.
+We have two `<bind>` tags next. These function a bit like defining
+variables and are used later on in our template. Specifically in the
+`userform` section specified by the apply tag below.
 
-The next line is an `<apply>` tag. It is used to render `userform.tpl` as part of this template.
+The next line is an `<apply>` tag. It is used to render `userform.tpl`
+as part of this template.
 
 ### \_new_user.tpl
 
@@ -435,11 +466,14 @@ The next line is an `<apply>` tag. It is used to render `userform.tpl` as part o
 <apply template="userform"/>
 ```
 
-`_new_user.tpl` is similar to `_login.tpl`. The only difference is that the values of the `<bind>` tags are different. This shows how a template can be modified by the context in which it is rendered.
+`_new_user.tpl` is similar to `_login.tpl`. The only difference is
+that the values of the `<bind>` tags are different. This shows how a
+template can be modified by the context in which it is rendered.
 
 ### base.tpl
 
-`base.tpl` is the base outline of our templates. It includes all the scaffolding such as `<html>`, `<head>` and `<body>`.
+`base.tpl` is the base outline of our templates. It includes all the
+scaffolding such as `<html>`, `<head>` and `<body>`.
 
 ```html
 <html>
@@ -457,11 +491,16 @@ The next line is an `<apply>` tag. It is used to render `userform.tpl` as part o
 </html>
 ```
 
-Inside of the `<div id="content">` is `<apply-content>`. This allows us to use `base.tpl` as a wrapper for whatever content we want, as we will see in `index.tpl`.
+Inside of the `<div id="content">` is `<apply-content>`. This allows
+us to use `base.tpl` as a wrapper for whatever content we want, as we
+will see in `index.tpl`.
 
 ### index.tpl
 
-The `index.tpl` template is a little more interesting. The first tag applies the base template. Anything inside the `<apply template="base">` tag will go where we wrote `<apply-content>` in `base.tpl`.
+The `index.tpl` template is a little more interesting. The first tag
+applies the base template. Anything inside the `<apply
+template="base">` tag will go where we wrote `<apply-content>` in
+`base.tpl`.
 
 ```html
 <apply template="base">
@@ -485,15 +524,21 @@ The `index.tpl` template is a little more interesting. The first tag applies the
 </apply>
 ```
 
-`<ifLoggedIn>` is one of the Auth Splices we added in `src/Site.hs` when we initialized our app. The content inside this tag only renders if the user is logged in.
+`<ifLoggedIn>` is one of the Auth Splices we added in `src/Site.hs`
+when we initialized our app. The content inside this tag only renders
+if the user is logged in.
 
-`<loggedInUser/>` is similar, but it displays the username of the logged in user.
+`<loggedInUser/>` is similar, but it displays the username of the
+logged in user.
 
-`<ifLoggedOut>` is also an Auth Splice. It renders it's content if the user is not logged in. In this case, it renders the `_login.tpl` template.
+`<ifLoggedOut>` is also an Auth Splice. It renders it's content if the
+user is not logged in. In this case, it renders the `_login.tpl`
+template.
 
 ### login.tpl
 
-The `login.tpl` template is super simple. It applies the base template and uses `_login.tpl` as the content.
+The `login.tpl` template is super simple. It applies the base template
+and uses `_login.tpl` as the content.
 
 ```html
 <apply template="base">
@@ -503,7 +548,8 @@ The `login.tpl` template is super simple. It applies the base template and uses 
 
 ### new_user.tpl
 
-The `new_user.tpl` template is very similar to `login.tpl`. It applies the base template and uses `_new_user.tpl` as the content.
+The `new_user.tpl` template is very similar to `login.tpl`. It applies
+the base template and uses `_new_user.tpl` as the content.
 
 ```html
 <apply template="base">
@@ -513,7 +559,9 @@ The `new_user.tpl` template is very similar to `login.tpl`. It applies the base 
 
 ### userform.tpl
 
-`userform.tpl` uses the content of the `<bind>` tags from the other templates. To access the value of the bind tag, we use `${tag}`. In the case of `postAction` it looks like `${postAction}`.
+`userform.tpl` uses the content of the `<bind>` tags from the other
+templates. To access the value of the bind tag, we use `${tag}`. In
+the case of `postAction` it looks like `${postAction}`.
 
 ```html
 <form method="post" action="${postAction}">
@@ -535,5 +583,7 @@ The `new_user.tpl` template is very similar to `login.tpl`. It applies the base 
 
 ## Fin
 
-That's it for the default template. From here use the other chapters to learn more about various pieces of Snap. Later in the book we will go over Digestive Functors, which can be used to render and process forms with validation, and Heist, which has more splices (such as Markdown) an Interpreted and a Compiled library.
-
+That's it for the default template. From here we'll move on to
+building out a feed for our users and allowing them to post
+microblogs. Use the later chapters to learn more about specific pieces
+of Snap, more in depth.
