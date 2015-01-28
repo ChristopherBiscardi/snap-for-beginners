@@ -3,7 +3,7 @@
 
 [GitHub][sfb-git-odoo-postgres]
 
-To build out Oodo, we'll need to connect a database. For this we'll
+To build out Odoo, we'll need to connect a database. For this we'll
 use PostgreSQL; a free, open source, relational database.
 
 For more detailed information on `snaplet-postgres-simple`, refer to
@@ -13,10 +13,10 @@ the Postgres chapter later in this book.
 
 ```
 git clone git@github.com:snapforbeginners/odoo-postgres.git
-cd oodo-postgres
+cd odoo-postgres
 docker-compose build
 docker-compose up -d pg
-docker-compose up oodo
+docker-compose up odoo
 ```
 
 ## libpq-dev
@@ -28,9 +28,9 @@ on debian. You can see this in the repo's Dockerfile as:
 apt-get install libpq-dev
 ```
 
-## oodo.cabal
+## odoo.cabal
 
-We'll need to add a snaplet to our `oodo.cabal` file:
+We'll need to add a snaplet to our `odoo.cabal` file:
 `snaplet-postgres-simple`.
 
 ```haskell
@@ -304,7 +304,7 @@ pg_1   | creating dictionaries ... ok
 pg_1   | setting privileges on built-in objects ... ok
 ```
 
-Now that the Postgres server is running, let's boot up oodo:
+Now that the Postgres server is running, let's boot up odoo:
 
 ```bash
 docker-compose up odoo
@@ -314,16 +314,16 @@ The logs will stream to `stdout` this time, since we didn't run the
 container with `-d`. The logs will look like this:
 
 ```
-oodo_1 | no port specified, defaulting to port 8000
-oodo_1 | Initializing app @ /
-oodo_1 | Initializing heist @ /
-oodo_1 | ...loaded 7 templates from /opt/odoo/snaplets/heist/templates
-oodo_1 | Initializing CookieSession @ /sess
-oodo_1 | Initializing postgresql-simple @ /db
-oodo_1 | Initializing postgresql-auth @ /auth
-oodo_1 | ...setting up filesystem
-oodo_1 |
-oodo_1 | Listening on http://0.0.0.0:8000
+odoo_1 | no port specified, defaulting to port 8000
+odoo_1 | Initializing app @ /
+odoo_1 | Initializing heist @ /
+odoo_1 | ...loaded 7 templates from /opt/odoo/snaplets/heist/templates
+odoo_1 | Initializing CookieSession @ /sess
+odoo_1 | Initializing postgresql-simple @ /db
+odoo_1 | Initializing postgresql-auth @ /auth
+odoo_1 | ...setting up filesystem
+odoo_1 |
+odoo_1 | Listening on http://0.0.0.0:8000
 ```
 
 ## Fin
@@ -339,7 +339,7 @@ container. The output here is truncated for brevity.
 ```bash
 > docker ps
 CONTAINER ID   IMAGE                            NAMES
-54450fff52fc   connectingpostgres_oodo:latest   connectingpostgres_oodo_1
+54450fff52fc   connectingpostgres_odoo:latest   connectingpostgres_odoo_1
 f1c4956192d2   connectingpostgres_pg:latest     connectingpostgres_pg_1
 ```
 
