@@ -11,7 +11,7 @@ the Postgres chapter later in this book.
 
 ## Quick Run
 
-```
+```bash
 git clone git@github.com:snapforbeginners/odoo-postgres.git
 cd odoo-postgres
 docker-compose build
