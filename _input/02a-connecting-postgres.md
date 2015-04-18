@@ -1,9 +1,9 @@
 
 # Connecting a Database (Postgres)
 
-[GitHub][sfb-git-odoo-postgres]
+[GitHub][sfb-git-pulsar-postgres]
 
-To build out Odoo, we'll need to connect a database. For this we'll
+To build out Pulsar, we'll need to connect a database. For this we'll
 use PostgreSQL; a free, open source, relational database.
 
 For more detailed information on `snaplet-postgres-simple`, refer to
@@ -12,11 +12,11 @@ the Postgres chapter later in this book.
 ## Quick Run
 
 ```bash
-git clone git@github.com:snapforbeginners/odoo-postgres.git
-cd odoo-postgres
+git clone git@github.com:snapforbeginners/pulsar-postgres.git
+cd pulsar-postgres
 docker-compose build
 docker-compose up -d pg
-docker-compose up odoo
+docker-compose up pulsar
 ```
 
 ## libpq-dev
@@ -28,14 +28,14 @@ on debian. You can see this in the repo's Dockerfile as:
 apt-get install libpq-dev
 ```
 
-## odoo.cabal
+## pulsar.cabal
 
-We'll need to add a snaplet to our `odoo.cabal` file:
+We'll need to add a snaplet to our `pulsar.cabal` file:
 `snaplet-postgres-simple`.
 
 ```haskell
 Build-depends:
-  snaplet-postgresql-simple >= 1.0
+  snaplet-postgresql-simple == 0.6.0.1
 ```
 
 ## src/Application.hs
@@ -262,7 +262,7 @@ configuration (set up the database, user, etc) can be found in
 
 To run Postgres (and our Snap server), we can use
 `docker-compose`. The `docker-compose.yml` file can be found in the
-[GitHub Repo][sfb-git-odoo-postgres].
+[GitHub Repo][sfb-git-pulsar-postgres].
 
 ```bash
 docker-compose up -d pg
@@ -304,26 +304,26 @@ pg_1   | creating dictionaries ... ok
 pg_1   | setting privileges on built-in objects ... ok
 ```
 
-Now that the Postgres server is running, let's boot up odoo:
+Now that the Postgres server is running, let's boot up pulsar:
 
 ```bash
-docker-compose up odoo
+docker-compose up pulsar
 ```
 
 The logs will stream to `stdout` this time, since we didn't run the
 container with `-d`. The logs will look like this:
 
 ```
-odoo_1 | no port specified, defaulting to port 8000
-odoo_1 | Initializing app @ /
-odoo_1 | Initializing heist @ /
-odoo_1 | ...loaded 7 templates from /opt/odoo/snaplets/heist/templates
-odoo_1 | Initializing CookieSession @ /sess
-odoo_1 | Initializing postgresql-simple @ /db
-odoo_1 | Initializing postgresql-auth @ /auth
-odoo_1 | ...setting up filesystem
-odoo_1 |
-odoo_1 | Listening on http://0.0.0.0:8000
+pulsar_1 | no port specified, defaulting to port 8000
+pulsar_1 | Initializing app @ /
+pulsar_1 | Initializing heist @ /
+pulsar_1 | ...loaded 7 templates from /opt/pulsar/snaplets/heist/templates
+pulsar_1 | Initializing CookieSession @ /sess
+pulsar_1 | Initializing postgresql-simple @ /db
+pulsar_1 | Initializing postgresql-auth @ /auth
+pulsar_1 | ...setting up filesystem
+pulsar_1 |
+pulsar_1 | Listening on http://0.0.0.0:8000
 ```
 
 ## Fin
@@ -339,7 +339,7 @@ container. The output here is truncated for brevity.
 ```bash
 > docker ps
 CONTAINER ID   IMAGE                            NAMES
-54450fff52fc   connectingpostgres_odoo:latest   connectingpostgres_odoo_1
+54450fff52fc   connectingpostgres_pulsar:latest connectingpostgres_pulsar_1
 f1c4956192d2   connectingpostgres_pg:latest     connectingpostgres_pg_1
 ```
 
