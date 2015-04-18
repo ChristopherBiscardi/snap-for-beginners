@@ -4,7 +4,7 @@
 * [GitHub Repo][sfb-git-scaffolding]
 * Docker Image: `snapforbeginners/default`
 
-We've created an awesome new startup called Odoo. It's a new
+We've created an awesome new startup called Pulsar. It's a new
 microblogging service. The first thing we'll do is scaffold a new Snap
 app to start the platform.
 
@@ -14,23 +14,23 @@ results should be the same if you use the templates described in the
 project templating chapter:
 
 ```bash
-git clone https://github.com/snapforbeginners/default.git odoo
+git clone https://github.com/snapforbeginners/default.git pulsar
 ```
 
 We now have a default Snap app with a basic user authentication
 scheme. Then enter the directory and build the app using Docker.
 
 ```bash
-cd odoo
-docker build -t odoo .
+cd pulsar
+docker build -t pulsar .
 ```
 
-This uses the `odoo.cabal` file in the current directory to install
+This uses the `pulsar.cabal` file in the current directory to install
 our dependencies and the snap application itself in a new image. Since
 we're using docker, we can now run the app on port 8000 with:
 
 ```bash
-docker run -it -p 8000:8000 odoo
+docker run -it -p 8000:8000 pulsar
 ```
 
 Snap defaults to port 8000, so by mapping port 8000 in the container
@@ -38,7 +38,7 @@ to port 8000 on our host (`-p 8000:8000`), we can see the app at
 `localhost:8000`. From the homepage, we can create a user and then log
 in to see the demo website.
 
-## code/odoo
+## code/pulsar
 
 The two files we are concerned with are `src/Application.hs` and
 `src/Site.hs`. `src/Application.hs` includes some basic setup code for
