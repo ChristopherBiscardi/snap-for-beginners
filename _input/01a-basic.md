@@ -37,11 +37,8 @@ docker run -i -t -p 8000:8000 snapforbeginners/basic
 If you used the Docker Container, the output will look like this:
 
 ```bash
-GHCi, version 7.8.3: http://www.haskell.org/ghc/  :? for help
-Loading package ghc-prim ... linking ... done.
-Loading package integer-gmp ... linking ... done.
-Loading package base ... linking ... done.
-[1 of 1] Compiling Main  ( /opt/server/Site.hs, interpreted )
+GHCi, version 7.10.1: http://www.haskell.org/ghc/  :? for help
+[1 of 1] Compiling Main             ( /opt/server/Site.hs, interpreted )
 Ok, modules loaded: Main.
 *Main>
 ```
@@ -133,5 +130,5 @@ logging directory everything will log to stdout/stderr. This is ok for
 now and will be covered later.
 
 Since we're now running the app, we can hit `localhost:8000` or
-`${boot2docker ip}:8000` to see our handler in action.
+`${docker-machine ip}:8000` to see our handler in action.
 
