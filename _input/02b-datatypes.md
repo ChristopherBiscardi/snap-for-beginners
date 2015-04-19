@@ -2,14 +2,14 @@
 # Datatypes
 
 Now that we've connected Postgres, we should start using it. To do
-that we'll add the ability to "tweet" to odoo.
+that we'll add the ability to "tweet" to Pulsar.
 
 ## Adding a datatype
 
 The first action we will take is to create a datatype that represents
 our "tweet".
 
-### src/Odoo/Types.hs
+### src/Pulsar/Types.hs
 
 We are going to use some newtypes, so it's useful to enable the
 `GeneralizedNewtypeDeriving` language pragma at the top of our
@@ -76,7 +76,7 @@ instance FromRow Microblog where
             <*> field
 ```
 
-### odoo.cabal
+### pulsar.cabal
 
 Since we have imported from `Database.PostgreSQL.Simple.FromField`
 we will need to add `postgresql-simple`, the library that
@@ -88,7 +88,7 @@ file:
     postgresql-simple         >= 0.4.9.0
 ```
 
-### src/Odoo/Microblog.hs
+### src/Pulsar/Microblog.hs
 
 First, we'll need the `OverloadedStrings` pragma. This is because the
 Postgres `Query` datatype has a limited API. The [docs][pgs-query] say:
@@ -109,7 +109,7 @@ Postgres `Query` datatype has a limited API. The [docs][pgs-query] say:
 We'll also be exporting a few functions:
 
 ```haskell
-module Odoo.Microblog
+module Pulsar.Microblog
          (getAllMicroblogs
          ,getMicroblog
          ,insertMicroblog) where
@@ -120,7 +120,7 @@ and importing a few:
 ```haskell
 import           Data.Maybe                    (listToMaybe)
 import           GHC.Int                       (Int64)
-import           Odoo.Types                    (Blog (..),
+import           Pulsar.Types                    (Blog (..),
                                                 Microblog (..),
                                                 MicroblogID (..),
                                                 ToPGMicroblog (..),
@@ -172,7 +172,7 @@ insertMicroblog (ToPGMicroblog (Blog blog)  (Username user)) =
           \VALUES (?, ?)" (blog, user)
 ```
 
-### src/Odoo/Handlers.hs
+### src/Pulsar/Handlers.hs
 
 Now we will write a couple test handlers to make sure our datatype
 gets into and out of Postgres cleanly. Again, we start with the
@@ -180,13 +180,13 @@ gets into and out of Postgres cleanly. Again, we start with the
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
-module Odoo.Handlers where
+module Pulsar.Handlers where
 
 import qualified Data.Text                     as T (pack)
-import           Odoo.Microblog                (getAllMicroblogs,
+import           Pulsar.Microblog                (getAllMicroblogs,
                                                 getMicroblog,
                                                 insertMicroblog)
-import           Odoo.Types                    (Blog (..),
+import           Pulsar.Types                    (Blog (..),
                                                 MicroblogID (..),
                                                 ToPGMicroblog (..),
                                                 Username (..))
@@ -243,7 +243,7 @@ Finally, we can add these routes to our site. We'll need to import the
 handlers:
 
 ```haskell
-import Odoo.Handlers (insertTest, getAllTest, getOneTest)
+import Pulsar.Handlers (insertTest, getAllTest, getOneTest)
 ```
 
 In our `routes` declaration, we will add three routes. One for each
@@ -265,8 +265,8 @@ pg` is what makes our Handlers have the type `Handler b Postgres`.
 We can build and run with `docker-compose`:
 
 ```bash
-> docker-compose build odoo
-> docker-compose up odoo
+> docker-compose build pulsar
+> docker-compose up pulsar
 ```
 
 Then we can hit our endpoint a couple times with `curl` to insert the
@@ -284,7 +284,7 @@ their names are):
 docker-compose ps
       Name                    Command               State           Ports
 ----------------------------------------------------------------------------------
-datatypes_odoo_1   /opt/odoo/dist/build/odoo/ ...   Up      0.0.0.0:8000->8000/tcp
+datatypes_pulsar_1 /opt/pulsar/dist/build/puls...   Up      0.0.0.0:8000->8000/tcp
 datatypes_pg_1     /docker-entrypoint.sh postgres   Up      5432/tcp
 ```
 
