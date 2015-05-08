@@ -35,7 +35,7 @@ We'll need to add a snaplet to our `pulsar.cabal` file:
 
 ```haskell
 Build-depends:
-  snaplet-postgresql-simple == 0.6.0.1
+  snaplet-postgresql-simple >= 0.6.0.2 && < 0.7,
 ```
 
 ## src/Application.hs

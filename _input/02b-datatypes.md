@@ -81,11 +81,12 @@ instance FromRow Microblog where
 Since we have imported from `Database.PostgreSQL.Simple.FromField`
 we will need to add `postgresql-simple`, the library that
 `snaplet-postgresql-simple` uses, to the build-depends in our .cabal
-file:
+file. Note that the import for `postgresql-simple` matches the
+dependency declared in `snaplet-postgres-simple`'s .cabal file
 
 ```haskell
-    snaplet-postgresql-simple >= 1.0,
-    postgresql-simple         >= 0.4.9.0
+    snaplet-postgresql-simple >= 0.6.0.2    && < 0.7,
+    postgresql-simple         >= >= 0.3     && < 0.5
 ```
 
 ### src/Pulsar/Microblog.hs
@@ -288,7 +289,7 @@ datatypes_pulsar_1 /opt/pulsar/dist/build/puls...   Up      0.0.0.0:8000->8000/t
 datatypes_pg_1     /docker-entrypoint.sh postgres   Up      5432/tcp
 ```
 
-We want our database `datatypes_pg_1`. We will use psql inside of the
+We want our database `datatypes_pg_1`. We will use `psql` inside of the
 container to check out what data we have in the `microblogs` table:
 
 ```bash

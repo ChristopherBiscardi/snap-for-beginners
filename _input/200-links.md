@@ -37,3 +37,11 @@
 [^rec]: The way we are writing this datatype is called "Record Syntax".
 [^auththing]: More on this in the Authentication and Routing chapters.
 [^splices]: More on splices in the Heist chapter
+
+
+[^1]: If you don't know what this is, it would be a good idea to look up the difference between `ByteString`, `Text` and `String` at some point.
+[^2]: and a bunch of other functions we will examine later such as `bool`, `optionalText` and `utcTimeFormlet`
+[^3]: More on Maybe here: http://learnyouahaskell.com/a-fistful-of-monads#getting-our-feet-wet-with-maybe
+[^4]: OverloadedStrings is a commonly used language extension that makes it easier to write string literals and use them in our application.
+
+[rsyntax]: http://learnyouahaskell.com/making-our-own-types-and-typeclasses#record-syntax
